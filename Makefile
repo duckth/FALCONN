@@ -50,10 +50,10 @@ python_package:
 	cp -r external/eigen $(PYTHON_PKG_DIR)/external
 	cp -r external/pybind11 $(PYTHON_PKG_DIR)/external
 	cp -r external/simple-serializer $(PYTHON_PKG_DIR)/external
-	cd $(PYTHON_PKG_DIR); python setup.py sdist; cd dist; tar -xf FALCONN*.tar.gz; cd FALCONN-*; python setup.py build
+	cd $(PYTHON_PKG_DIR); python3 setup.py sdist; cd dist; tar -xf FALCONN*.tar.gz; cd FALCONN-*; python3 setup.py build
 
 python_package_install: python_package
-	cd $(PYTHON_PKG_DIR)/dist/FALCONN-*; python setup.py install
+	cd $(PYTHON_PKG_DIR)/dist/FALCONN-*; python3 setup.py install
 
 random_benchmark: $(BENCH_DIR)/random_benchmark.cc $(ALL_HEADERS)
 	$(CXX) $(CXXFLAGS) -o $@ $(BENCH_DIR)/random_benchmark.cc -pthread
