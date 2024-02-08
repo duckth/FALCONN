@@ -11,3 +11,5 @@ src/examples/glove/glove
 src/examples/glove/dataset
 src/python/test/.cache
 src/python/test/__pycache__
+doc/html
+compile_flags.txt
