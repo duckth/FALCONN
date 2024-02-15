@@ -654,7 +654,7 @@ class StaticTableFactory {
   }
 
  private:
-  void setup0() {
+  void setup0() { // Checks number of bits and sets `HashType` to be the datatype corresponding to the number of bits
     if (num_bits_ <= 32) {
       typedef uint32_t HashType;
       HashType tmp;
@@ -671,7 +671,9 @@ class StaticTableFactory {
   }
 
   template <typename V>
-  void setup1(V vals) {
+  void setup1(V vals) { // Configures type "LSH" to alias the configured LSH family
+                        // More specifically: sets type LSH equal to `wrapper:PointTypeTraitsInternal<PointType>::template X<HashType>` 
+                        // where X is either HPHash or CPHash depending on the LSH-family configured. 
     typedef typename std::tuple_element<kHashTypeIndex, V>::type HashType;
 
     if (params_.lsh_family == LSHFamily::Hyperplane) {
@@ -714,7 +716,7 @@ class StaticTableFactory {
   }
 
   template <typename V>
-  void setup2(V vals) {
+  void setup2(V vals) { // Configures type "DistanceFunc" as one of NegativeInnerProduct or EuclideanSquared
     if (params_.distance_function == DistanceFunction::NegativeInnerProduct) {
       typedef
           typename wrapper::PointTypeTraitsInternal<PointType>::CosineDistance
@@ -735,7 +737,7 @@ class StaticTableFactory {
   }
 
   template <typename V>
-  void setup3(V vals) {
+  void setup3(V vals) { // Configures the HashTable type (Flat vs BitPacked vs STL vs LinearProbing)
     typedef typename std::tuple_element<kHashTypeIndex, V>::type HashType;
 
     if (params_.storage_hash_table == StorageHashTable::FlatHashTable) {
@@ -801,7 +803,9 @@ class StaticTableFactory {
   }
 
   template <typename V>
-  void setup_final(V vals) {
+  void setup_final(V vals) { // We set up some other aliases for different types
+                             // Then at the end we reset the table with the configured values
+                             // This helps avoid memory leak
     typedef typename std::tuple_element<kHashTypeIndex, V>::type HashType;
 
     typedef

@@ -99,7 +99,7 @@ class FHTHelper {
 // TODO: replace CoordinateType with a type trait of VectorT?
 template <typename Derived, typename VectorT, typename CoordinateType = float,
           typename HashT = uint32_t>
-class CrossPolytopeHashBase {
+class CrossPolytopeHashBase { // CrossPolytope handled here
  private:
   class MultiProbeLookup;
 
@@ -138,7 +138,7 @@ class CrossPolytopeHashBase {
           fht_helper_(parent.rotation_dim_) {}
 
     void batch_hash_single_table(const BatchVectorType& points, int_fast32_t l,
-                                 std::vector<HashType>* res) {
+                                 std::vector<HashType>* res) { // Hash Tables. Creates a hash table of K hash functions (rotations).
       int_fast64_t nn = points.size();
       if (static_cast<int_fast64_t>(res->size()) != nn) {
         res->resize(nn);
@@ -155,7 +155,7 @@ class CrossPolytopeHashBase {
 
           for (int_fast32_t rot = 0; rot < parent_.num_rotations_; ++rot) {
             tmp_vector_ =
-                tmp_vector_.cwiseProduct(parent_.random_signs_[pattern]);
+                tmp_vector_.cwiseProduct(parent_.random_signs_[pattern]); // Rotates multiple times as we are using pseudo-randomness
             ++pattern;
             fht_helper_.apply(tmp_vector_.data());
           }
