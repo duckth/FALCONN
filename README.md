@@ -1,3 +1,30 @@
+## Get started
+
+Download a dataset, e.g. [mnist-784-euclidean.hdf5](http://ann-benchmarks.com/mnist-784-euclidean.hdf5)
+
+Place the dataset in `./dataset/` (other places will require you to alter the below docker run command when mounting the dataset on the container).
+
+Make sure Docker Desktop is running and not in any power-saving mode, and that the current directory is the repository.
+
+Build the docker image:
+```
+docker build -t falconn .
+```
+This names the docker image as `falconn`. This can take a couple minutes to build.
+
+Run the container with the dataset mounted:
+```
+docker run -v ./dataset:/dataset -v $(pwd):/app -it falconn bash
+```
+
+This attaches the `./dataset` volume into the container to the target `/dataset`. It also makes sure mount the app code to `./app` which means that changes to parameters etc. in the repository will reflect in the container instead of having to rebuild. It runs in `-it` interactive mode the `falconn` container with the initial command `bash`. 
+
+Once the docker image is running and the docker bash terminal is open in interactive mode, it is possible to run the `glove-hdf5.py`-file with one of the following two commands (that are equivalent):
+```
+python3 src/examples/glove/glove-hdf5.py
+make run_hdf5
+```
+
 ### FALCONN - FAst Lookups of Cosine and Other Nearest Neighbors
 
 FALCONN is a library with algorithms for the nearest neighbor search problem. The algorithms in FALCONN are based on
