@@ -190,3 +190,6 @@ run_all_cpp_tests: $(TEST_BIN_DIR)/bit_packed_flat_hash_table_test $(TEST_BIN_DI
 
 run_all_python_tests:
 	py.test src/python/test
+
+run_hdf5:
+	python3 src/examples/glove/glove-hdf5.py
