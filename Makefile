@@ -31,7 +31,7 @@ docs: $(ALL_HEADERS) $(DOC_DIR)/Doxyfile
 python_wrapper: $(ALL_HEADERS) $(PYTHON_WRAPPER_FILE)
 	rm -rf $(PYTHON_WRAPPER_DIR)
 	mkdir -p $(PYTHON_WRAPPER_DIR)
-	$(CXX) $(CXXFLAGS) -shared -fPIC -I external/pybind11/include `python-config --cflags --ldflags` $(PYTHON_WRAPPER_FILE) -o $(PYTHON_WRAPPER_DIR)/_falconn.so
+	$(CXX) $(CXXFLAGS) -shared -fPIC -I external/pybind11/include `python3-config --cflags --ldflags` $(PYTHON_WRAPPER_FILE) -o $(PYTHON_WRAPPER_DIR)/_falconn.so
 
 python_package:
 	rm -rf $(PYTHON_PKG_DIR)
