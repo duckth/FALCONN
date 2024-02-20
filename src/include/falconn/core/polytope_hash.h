@@ -153,7 +153,7 @@ class CrossPolytopeHashBase { // CrossPolytope handled here
         for (int_fast32_t jj = 0; jj < parent_.k_ - 1; ++jj) {
           parent_.embed(iter.get_point(), l, jj, &tmp_vector_);
 
-          for (int_fast32_t rot = 0; rot < parent_.num_rotations_; ++rot) {
+          for (int_fast32_t rot = 0; rot < parent_.num_rotations_; ++rot) { // rotating cross-polytope
             tmp_vector_ =
                 tmp_vector_.cwiseProduct(parent_.random_signs_[pattern]); // Rotates multiple times as we are using pseudo-randomness
             ++pattern;
@@ -263,7 +263,7 @@ class CrossPolytopeHashBase { // CrossPolytope handled here
   }
 
  protected:
-  CrossPolytopeHashBase(int_fast32_t rotation_dim, int_fast32_t k,
+  CrossPolytopeHashBase(int_fast32_t rotation_dim, int_fast32_t k, // setup method (validates inputs)
                         int_fast32_t l, int_fast32_t num_rotations,
                         int_fast32_t last_cp_dim, uint_fast64_t seed)
       : rotation_dim_(rotation_dim),
@@ -409,7 +409,7 @@ class CrossPolytopeHashBase { // CrossPolytope handled here
           main_table_probes_(parent.l_) {
       for (int_fast32_t ii = 0; ii < l_; ++ii) {
         for (int_fast32_t jj = 0; jj < k_; ++jj) {
-          int_fast32_t cur_cp_dim = (jj == k_ - 1 ? last_cp_dim_ : dim_);
+          int_fast32_t cur_cp_dim = (jj == k_ - 1 ? last_cp_dim_ : dim_); // last CP does not have the same dimensions.
           sorted_coordinate_indices_[ii * k_ + jj].resize(2 * cur_cp_dim);
         }
       }
