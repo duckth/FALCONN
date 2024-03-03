@@ -1,8 +1,21 @@
 from __future__ import print_function
+from functools import lru_cache
 import numpy as np
 import falconn
 import timeit
 import math
+
+def datapoint_fullfills_constrains(point_with_metadata, filter_metadata: list[int]):
+    _, metadata = point_with_metadata
+    metadata: list[int]
+    for i, constraint in enumerate(filter_metadata):
+        if constraint == 1 and metadata[i] != 1:
+            return False
+    return True
+
+@lru_cache(maxsize=10)
+def filter_dataset(dataset, filter_metadata):
+    return np.array([point for point in dataset if datapoint_fullfills_constrains(point, filter_metadata)])
 
 if __name__ == '__main__':
     dataset_file = 'dataset/glove.840B.300d.npy'
@@ -23,6 +36,7 @@ if __name__ == '__main__':
     # Normalize all the lenghts, since we care about the cosine similarity.
     print('Normalizing the dataset')
     dataset /= np.linalg.norm(dataset, axis=1).reshape(-1, 1)
+
     print('Done')
 
     # Choose random data points to be queries.
@@ -37,8 +51,8 @@ if __name__ == '__main__':
     print('Solving queries using linear scan')
     t1 = timeit.default_timer()
     answers = []
-    for query in queries:
-        answers.append(np.dot(dataset, query).argmax())
+    for query_point, query_metadata in queries:
+        answers.append(np.dot(filter_dataset(dataset, query_metadata), query_point).argmax())
     t2 = timeit.default_timer()
     print('Done')
     print('Linear scan time: {} per query'.format((t2 - t1) / float(
