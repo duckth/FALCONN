@@ -14,3 +14,5 @@ src/python/test/__pycache__
 doc/html
 compile_flags.txt
 dataset/
+python_package
+.env

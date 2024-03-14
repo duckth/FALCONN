@@ -14,6 +14,7 @@ WORKDIR /app
 # Install any needed packages specified in requirements.txt
 RUN pip3 install numpy
 RUN pip3 install h5py
+run pip3 install scipy
 
 # Copy the local code to the container
 COPY . .
