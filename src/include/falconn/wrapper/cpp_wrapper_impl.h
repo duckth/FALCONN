@@ -842,7 +842,7 @@ class StaticTableFactory {
                                        LSHType, HashTableFactoryType,
                                        CompositeHashTableType, DataStorageType>(
         std::move(lsh), std::move(lsh_table), std::move(factory),
-        std::move(composite_table), std::move(data_storage_)));
+        std::move(composite_table), std::move(data_storage_), std::move(metadata_storage_)));
   }
 
   const static int_fast32_t kHashTypeIndex = 0;
