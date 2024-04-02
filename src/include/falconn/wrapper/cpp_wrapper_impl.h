@@ -856,7 +856,7 @@ class StaticTableFactory {
   const PointSet& points_;
   const LSHConstructionParameters& params_;
   std::unique_ptr<DataStorageType> data_storage_;
-  std::unique_pt<std::map<int,std::set<int>>> metadata_storage_;
+  std::unique_ptr<std::map<int,std::set<int>>> metadata_storage_;
   int_fast32_t num_bits_;
   int_fast64_t n_;
   std::unique_ptr<LSHNearestNeighborTable<PointType, KeyType>> table_ = nullptr;
