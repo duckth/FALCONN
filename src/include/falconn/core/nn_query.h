@@ -32,7 +32,7 @@ class NearestNeighborQuery {
   NearestNeighborQuery(LSHTableQuery* table_query,
                        const DataStorage& data_storage,
                        const std::map<int,std::set<int>>& metadata_storage)
-      : table_query_(table_query), data_storage_(data_storage) {}
+      : table_query_(table_query), data_storage_(data_storage), metadata_storage_(metadata_storage) {}
 
   LSHTableKeyType find_nearest_neighbor(const LSHTablePointType& q,
                                         const ComparisonPointType& q_comp,
@@ -62,13 +62,13 @@ class NearestNeighborQuery {
         auto point = iter.get_point();
         auto filter_iter = q_filter.begin();
         bool is_good = true;
-        for (std::set<int>::iterator it=q_filter.begin(); it!=q_filter.end(); ++it)
+        for (std::set<int>::iterator it=q_filter.begin(); it!=q_filter.end(); ++it) {
           auto search = metadata_storage_[point].find(it);
           bool found = search != metadata_storage_.end();
           is_good = is_good && found;
         }
         if(is_good) {
-          DistanceType cur_distance = dst_(q_comp, iter.get_point());
+          DistanceType cur_distance = dst_(q_comp, point);
           // printf("%d %f\n", iter.get_key(), cur_distance);
           if (cur_distance < best_distance) {
             best_distance = cur_distance;

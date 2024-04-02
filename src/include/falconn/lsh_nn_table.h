@@ -6,6 +6,7 @@
 #include <memory>
 #include <type_traits>
 #include <vector>
+#include <set>
 
 #include <Eigen/Dense>
 
@@ -60,7 +61,7 @@ class LSHNearestNeighborQuery {
   ///
   /// Finds the key of the closest candidate in the probing sequence for q.
   ///
-  virtual KeyType find_nearest_neighbor(const PointType& q) = 0;
+  virtual KeyType find_nearest_neighbor(const PointType& q, std::set<int> filters) = 0;
 
   ///
   /// Find the keys of the k closest candidates in the probing sequence for q.
@@ -147,7 +148,7 @@ class LSHNearestNeighborQueryPool {
   ///
   /// Finds the key of the closest candidate in the probing sequence for q.
   ///
-  virtual KeyType find_nearest_neighbor(const PointType& q) = 0;
+  virtual KeyType find_nearest_neighbor(const PointType& q, std::set<int> filters) = 0;
 
   ///
   /// Find the keys of the k closest candidates in the probing sequence for q.

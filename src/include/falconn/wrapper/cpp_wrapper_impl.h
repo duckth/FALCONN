@@ -292,7 +292,7 @@ class LSHNNQueryWrapper : public LSHNearestNeighborQuery<PointType, KeyType> {
  public:
   LSHNNQueryWrapper(const LSHTable& parent, int_fast64_t num_probes,
                     int_fast64_t max_num_candidates,
-                    const DataStorage& data_storage, std::map<int,std::set<int>> metadata_storage)
+                    const DataStorage& data_storage, std::map<int,std::set<int>>& metadata_storage)
       : num_probes_(num_probes), max_num_candidates_(max_num_candidates) {
     if (num_probes <= 0) {
       throw LSHNearestNeighborTableError(
@@ -377,7 +377,7 @@ class LSHNNQueryPool : public LSHNearestNeighborQueryPool<PointType, KeyType> {
   LSHNNQueryPool(const LSHTable& parent, int_fast64_t num_probes,
                  int_fast64_t max_num_candidates,
                  const DataStorage& data_storage,
-                 int_fast64_t num_query_objects)
+                 int_fast64_t num_query_objects, std::map<int,std::set<int>>& metadata_storage)
       : locks_(num_query_objects),
         num_probes_(num_probes),
         max_num_candidates_(max_num_candidates) {
@@ -393,7 +393,7 @@ class LSHNNQueryPool : public LSHNearestNeighborQueryPool<PointType, KeyType> {
       std::unique_ptr<typename LSHTable::Query> cur_query(
           new typename LSHTable::Query(parent));
       std::unique_ptr<NNQueryType> cur_nn_query(
-          new NNQueryType(cur_query.get(), data_storage));
+          new NNQueryType(cur_query.get(), data_storage, metadata_storage));
       internal_queries_.push_back(std::move(cur_query));
       internal_nn_queries_.push_back(std::move(cur_nn_query));
       locks_[ii].clear(std::memory_order_release);
@@ -549,7 +549,7 @@ class LSHNNTableWrapper : public LSHNearestNeighborTable<PointType, KeyType> {
         nn_query(
             new LSHNNQueryWrapper<PointType, KeyType, DistanceType, LSHTable,
                                   ScalarType, DistanceFunction, DataStorage>(
-                *lsh_table_, num_probes, max_num_candidates, *data_storage_, metadata_storage_));
+                *lsh_table_, num_probes, max_num_candidates, *data_storage_, *metadata_storage_));
     return std::move(nn_query);
   }
 
