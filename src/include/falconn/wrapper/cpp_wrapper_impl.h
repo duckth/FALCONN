@@ -290,7 +290,7 @@ class LSHNNQueryWrapper : public LSHNearestNeighborQuery<PointType, KeyType> {
  public:
   LSHNNQueryWrapper(const LSHTable& parent, int_fast64_t num_probes,
                     int_fast64_t max_num_candidates,
-                    const DataStorage& data_storage)
+                    const DataStorage& data_storage, std::map<int,std::set<int>> metadata_storage)
       : num_probes_(num_probes), max_num_candidates_(max_num_candidates) {
     if (num_probes <= 0) {
       throw LSHNearestNeighborTableError(
@@ -298,7 +298,7 @@ class LSHNNQueryWrapper : public LSHNearestNeighborQuery<PointType, KeyType> {
     }
     internal_query_.reset(new typename LSHTable::Query(parent));
     internal_nn_query_.reset(
-        new NNQueryType(internal_query_.get(), data_storage));
+        new NNQueryType(internal_query_.get(), data_storage, metadata_storage));
   }
 
   KeyType find_nearest_neighbor(const PointType& q, std::set<int> filters) {
