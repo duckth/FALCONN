@@ -570,7 +570,7 @@ class LSHNNTableWrapper : public LSHNearestNeighborTable<PointType, KeyType> {
             new LSHNNQueryPool<PointType, KeyType, DistanceType, LSHTable,
                                ScalarType, DistanceFunction, DataStorage>(
                 *lsh_table_, num_probes, max_num_candidates, *data_storage_,
-                num_query_objects));
+                num_query_objects, *metadata_storage_));
     return std::move(nn_query_pool);
   }
 
