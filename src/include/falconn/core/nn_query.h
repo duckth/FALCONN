@@ -28,11 +28,13 @@ template <typename LSHTableQuery, typename LSHTablePointType,
 class NearestNeighborQuery {
  public:
   NearestNeighborQuery(LSHTableQuery* table_query,
-                       const DataStorage& data_storage)
+                       const DataStorage& data_storage,
+                       const std::map<int,std::set<int>>& metadata_storage)
       : table_query_(table_query), data_storage_(data_storage) {}
 
   LSHTableKeyType find_nearest_neighbor(const LSHTablePointType& q,
                                         const ComparisonPointType& q_comp,
+                                        const std::set<int>& q_filter,
                                         int_fast64_t num_probes,
                                         int_fast64_t max_num_candidates) {
     auto start_time = std::chrono::high_resolution_clock::now();
@@ -55,12 +57,22 @@ class NearestNeighborQuery {
       // printf("%d %f\n", candidates_[0], best_distance);
 
       while (iter.is_valid()) {
-        DistanceType cur_distance = dst_(q_comp, iter.get_point());
-        // printf("%d %f\n", iter.get_key(), cur_distance);
-        if (cur_distance < best_distance) {
-          best_distance = cur_distance;
-          best_key = iter.get_key();
-          // printf("  is new best\n");
+        auto point = iter.get_point();
+        auto filter_iter = q_filter.begin()
+        bool is_good = true
+        while (filter_iter.is_valid()) {
+          auto search = metadata_storage[point].find(filter_iter.next())
+          bool found = search != metadata_storage.end()
+          is_good = is_good && found
+        }
+        if(is_good) {
+          DistanceType cur_distance = dst_(q_comp, iter.get_point());
+          // printf("%d %f\n", iter.get_key(), cur_distance);
+          if (cur_distance < best_distance) {
+            best_distance = cur_distance;
+            best_key = iter.get_key();
+            // printf("  is new best\n");
+          }
         }
         ++iter;
       }
