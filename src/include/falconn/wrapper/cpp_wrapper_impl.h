@@ -519,12 +519,14 @@ class LSHNNTableWrapper : public LSHNearestNeighborTable<PointType, KeyType> {
                     std::unique_ptr<LSHTable> lsh_table,
                     std::unique_ptr<HashTableFactory> hash_table_factory,
                     std::unique_ptr<CompositeHashTable> composite_hash_table,
-                    std::unique_ptr<DataStorage> data_storage)
+                    std::unique_ptr<DataStorage> data_storage,
+                    std::unique_ptr<std::map<int,std::set<int>>> metadata_storage)
       : lsh_(std::move(lsh)),
         lsh_table_(std::move(lsh_table)),
         hash_table_factory_(std::move(hash_table_factory)),
         composite_hash_table_(std::move(composite_hash_table)),
-        data_storage_(std::move(data_storage)) {}
+        data_storage_(std::move(data_storage)),
+        metadata_storage_(std::move(metadata_storage)) {}
 
   void add_table() {
     lsh_->add_table();
@@ -545,7 +547,7 @@ class LSHNNTableWrapper : public LSHNearestNeighborTable<PointType, KeyType> {
         nn_query(
             new LSHNNQueryWrapper<PointType, KeyType, DistanceType, LSHTable,
                                   ScalarType, DistanceFunction, DataStorage>(
-                *lsh_table_, num_probes, max_num_candidates, *data_storage_));
+                *lsh_table_, num_probes, max_num_candidates, *data_storage_, metadata_storage_s));
     return std::move(nn_query);
   }
 
@@ -578,6 +580,7 @@ class LSHNNTableWrapper : public LSHNearestNeighborTable<PointType, KeyType> {
   std::unique_ptr<HashTableFactory> hash_table_factory_;
   std::unique_ptr<CompositeHashTable> composite_hash_table_;
   std::unique_ptr<DataStorage> data_storage_;
+  std::unique_ptr<std::map<int,std::set<int>>> metadata_storage_;
 };
 
 template <typename PointType, typename KeyType, typename PointSet>
