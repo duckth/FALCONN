@@ -60,12 +60,12 @@ class NearestNeighborQuery {
 
       while (iter.is_valid()) {
         auto point = iter.get_point();
-        auto filter_iter = q_filter.begin()
-        bool is_good = true
+        auto filter_iter = q_filter.begin();
+        bool is_good = true;
         while (filter_iter.is_valid()) {
-          auto search = metadata_storage[point].find(filter_iter.next())
-          bool found = search != metadata_storage.end()
-          is_good = is_good && found
+          auto search = metadata_storage[point].find(filter_iter.next());
+          bool found = search != metadata_storage.end();
+          is_good = is_good && found;
         }
         if(is_good) {
           DistanceType cur_distance = dst_(q_comp, iter.get_point());
