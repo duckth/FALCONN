@@ -63,8 +63,8 @@ class NearestNeighborQuery {
         auto filter_iter = q_filter.begin();
         bool is_good = true;
         for (std::set<int>::iterator it=q_filter.begin(); it!=q_filter.end(); ++it)
-          auto search = metadata_storage[point].find(it);
-          bool found = search != metadata_storage.end();
+          auto search = metadata_storage_[point].find(it);
+          bool found = search != metadata_storage_.end();
           is_good = is_good && found;
         }
         if(is_good) {
@@ -248,6 +248,7 @@ class NearestNeighborQuery {
  private:
   LSHTableQuery* table_query_;
   const DataStorage& data_storage_;
+  std::map<int,std::set<int>> metadata_storage_;
   std::vector<LSHTableKeyType> candidates_;
   DistanceFunction dst_;
   SimpleHeap<DistanceType, LSHTableKeyType> heap_;
