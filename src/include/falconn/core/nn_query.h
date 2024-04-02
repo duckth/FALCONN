@@ -62,8 +62,8 @@ class NearestNeighborQuery {
         auto point = iter.get_point();
         auto filter_iter = q_filter.begin();
         bool is_good = true;
-        while (filter_iter.is_valid()) {
-          auto search = metadata_storage[point].find(filter_iter.next());
+        for (std::set<int>::iterator it=q_filter.begin(); it!=q_filter.end(); ++it)
+          auto search = metadata_storage[point].find(it);
           bool found = search != metadata_storage.end();
           is_good = is_good && found;
         }
