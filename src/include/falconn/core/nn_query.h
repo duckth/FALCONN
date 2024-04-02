@@ -9,6 +9,8 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <map>
+#include <set>
 
 #include "../falconn_global.h"
 #include "heap.h"
