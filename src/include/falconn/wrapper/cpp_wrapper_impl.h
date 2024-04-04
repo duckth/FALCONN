@@ -595,8 +595,8 @@ class StaticTableFactory {
 
   StaticTableFactory(const PointSet& points,
                      const LSHConstructionParameters& params,
-                     const std::map<int, std::set<int>> metadata_storage)
-      : points_(points), params_(params), metadata_storage_(metadata_storage) {}
+                     const std::map<int, std::set<int>>& metadata_points)
+      : points_(points), params_(params), metadata_points_(metadata_points) {}
 
   std::unique_ptr<LSHNearestNeighborTable<PointType, KeyType>> setup() {
     if (params_.dimension < 1) {
@@ -649,7 +649,7 @@ class StaticTableFactory {
         DataStorageAdapter<PointSet>::template construct_data_storage<KeyType>(
             points_));
 
-    metadata_storage_ = std::move(metadata_storage_);
+    metadata_storage_ = std::make_unique<std::map<int, std::set<int>>>(std::move(metadata_points_));
 
     ComputeNumberOfHashBits<PointType> helper;
     num_bits_ = helper.compute(params_);
@@ -858,8 +858,9 @@ class StaticTableFactory {
 
   const PointSet& points_;
   const LSHConstructionParameters& params_;
+  const std::map<int, std::set<int>>& metadata_points_;
   std::unique_ptr<DataStorageType> data_storage_;
-  std::unique_ptr<std::map<int,std::set<int>>> metadata_storage_;
+  std::unique_ptr<std::map<int, std::set<int>>> metadata_storage_;
   int_fast32_t num_bits_;
   int_fast64_t n_;
   std::unique_ptr<LSHNearestNeighborTable<PointType, KeyType>> table_ = nullptr;

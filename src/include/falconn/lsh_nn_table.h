@@ -7,11 +7,11 @@
 #include <type_traits>
 #include <vector>
 #include <set>
+#include <map>
 
 #include <Eigen/Dense>
 
 #include "falconn_global.h"
-
 ///
 /// The main namespace.
 ///
