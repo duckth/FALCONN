@@ -218,15 +218,15 @@ if __name__ == '__main__':
     score = 0
     res = 0
     for (i, query) in enumerate(queries):
-        res = query_object.find_k_nearest_neighbors(query,5)
+        res = query_object.find_nearest_neighbor(query, queries_metadata[i])
         real_point = None
-        for result in res:
+        # for result in res:
             # breakpoint()
-            if datapoint_fulfills_constrains(dataset_metadata[result].toarray()[0], queries_metadata[i]):
-                real_point = result
-                break
+            # if datapoint_fulfills_constrains(dataset_metadata[result].toarray()[0], queries_metadata[i]):
+                # real_point = result
+                # break
         # breakpoint()
-        if real_point != None and real_point == answers[i]: # find_k_nearest_neighbors allows us to find multiple and not just one nearest neighbor
+        if res == answers[i]: # find_k_nearest_neighbors allows us to find multiple and not just one nearest neighbor
             score += 1
     t2 = timeit.default_timer()
 
