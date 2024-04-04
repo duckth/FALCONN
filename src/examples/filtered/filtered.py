@@ -119,6 +119,9 @@ if __name__ == '__main__':
     queries = np.memmap(queries_file, dtype=dtype, mode="r+", offset=8, shape=(n, d))
 
     queries_metadata = read_sparse_matrix(queries_metadata_file, do_mmap=True)
+
+    metadata = dict(dataset_metadata.todok().items())
+    # breakpoint()
     print('Done')
 
 
@@ -169,7 +172,7 @@ if __name__ == '__main__':
     print('Constructing the LSH table')
     t1 = timeit.default_timer()
     table = falconn.LSHIndex(params_cp)
-    table.setup(dataset)
+    table.setup(dataset, queries_dict)
     t2 = timeit.default_timer()
     print('Done')
     print('Construction time: {}'.format(t2 - t1))
@@ -217,8 +220,9 @@ if __name__ == '__main__':
     t1 = timeit.default_timer()
     score = 0
     res = 0
+    right = 0
     for (i, query) in enumerate(queries):
-        res = query_object.find_nearest_neighbor(query, queries_metadata[i])
+        res = query_object.find_nearest_neighbor(query, queries_metadata[i].indices)
         real_point = None
         # for result in res:
             # breakpoint()
@@ -226,10 +230,14 @@ if __name__ == '__main__':
                 # real_point = result
                 # break
         # breakpoint()
+        # print('Res object: {}, answer: {}'.format(res, answers[i]))
+        # print('Fulfills constraints: {}'.format(datapoint_fulfills_constrains(dataset_metadata[res].toarray()[0], queries_metadata[i])))
+        if datapoint_fulfills_constrains(dataset_metadata[res].toarray()[0], queries_metadata[i]):
+            right += 1
         if res == answers[i]: # find_k_nearest_neighbors allows us to find multiple and not just one nearest neighbor
             score += 1
     t2 = timeit.default_timer()
 
-    print('Res object: {}'.format(res))
     print('Query time: {}'.format((t2 - t1) / len(queries)))
     print('Precision: {}'.format(float(score) / len(queries)))
+    print('Right: {}'.format(float(right) / len(queries)))

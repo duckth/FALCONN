@@ -322,8 +322,9 @@ class LSHIndex:
         self._params = params
         self._dataset = None
         self._table = None
+        self._metadata = None
 
-    def setup(self, dataset):
+    def setup(self, dataset, metadata):
         """Build the LSH data structure from a given dataset.
 
         The method builds the LSH data structure using the parameters
@@ -360,12 +361,13 @@ class LSHIndex:
                 'dataset dimension mismatch: {} expected, but {} found'.format(
                     self._params.dimension, dataset.shape[1]))
         self._dataset = dataset
+        self._metadata = metadata;
         if dataset.dtype == _numpy.float32:
             self._table = _internal.construct_table_dense_float(
-                dataset, self._params, {})
+                dataset, self._params, metadata)
         else:
             self._table = _internal.construct_table_dense_double(
-                dataset, self._params, {})
+                dataset, self._params, metadata)
 
     def _check_built(self):
         if self._dataset is None or self._table is None:
