@@ -13,7 +13,7 @@ except ImportError:
     sys.stderr.write('Setuptools not found!\n')
     raise
 
-extra_args = ['-std=c++11', '-march=native', '-O3']
+extra_args = ['-std=c++14', '-march=native', '-O3']
 if sys.platform == 'darwin':
     extra_args += ['-mmacosx-version-min=10.9', '-stdlib=libc++']
     os.environ['LDFLAGS'] = '-mmacosx-version-min=10.9'
