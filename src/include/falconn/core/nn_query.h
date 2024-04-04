@@ -77,8 +77,8 @@ class NearestNeighborQuery {
         for (std::set<int>::iterator it=q_filter.begin(); it!=q_filter.end(); ++it) {
           auto search = current_point_metadata.find(*it);
           bool found = search != current_point_metadata.end();
-          /* is_good = is_good && found; */
-          is_good = true;
+          is_good = is_good && found;
+          // is_good = true;
         }
         if(is_good) {
           DistanceType cur_distance = dst_(q_comp, point);

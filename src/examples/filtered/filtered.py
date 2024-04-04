@@ -6,6 +6,7 @@ import falconn
 import timeit
 import math
 import pdb
+from collections import defaultdict
 
 cache_dict = {}
 
@@ -119,9 +120,13 @@ if __name__ == '__main__':
     queries = np.memmap(queries_file, dtype=dtype, mode="r+", offset=8, shape=(n, d))
 
     queries_metadata = read_sparse_matrix(queries_metadata_file, do_mmap=True)
-
-    metadata = dict(dataset_metadata.todok().items())
+    mydic = defaultdict(lambda: set())
     # breakpoint()
+    # metadata = dict(dataset_metadata.tolil().items())
+    
+    for idx, el in dict(dataset_metadata.todok().items()).keys():
+        mydic[idx].add(el)
+    
     print('Done')
 
 
@@ -172,7 +177,7 @@ if __name__ == '__main__':
     print('Constructing the LSH table')
     t1 = timeit.default_timer()
     table = falconn.LSHIndex(params_cp)
-    table.setup(dataset, queries_dict)
+    table.setup(dataset, mydic)
     t2 = timeit.default_timer()
     print('Done')
     print('Construction time: {}'.format(t2 - t1))
