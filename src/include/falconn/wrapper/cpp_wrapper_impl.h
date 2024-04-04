@@ -594,8 +594,9 @@ class StaticTableFactory {
       DataStorageType;
 
   StaticTableFactory(const PointSet& points,
-                     const LSHConstructionParameters& params)
-      : points_(points), params_(params) {}
+                     const LSHConstructionParameters& params,
+                     const std::map<int, std::set<int>> metadata_storage)
+      : points_(points), params_(params), metadata_storage_(metadata_storage) {}
 
   std::unique_ptr<LSHNearestNeighborTable<PointType, KeyType>> setup() {
     if (params_.dimension < 1) {
@@ -647,6 +648,8 @@ class StaticTableFactory {
     data_storage_ = std::move(
         DataStorageAdapter<PointSet>::template construct_data_storage<KeyType>(
             points_));
+
+    metadata_storage_ = std::move(metadata_storage_);
 
     ComputeNumberOfHashBits<PointType> helper;
     num_bits_ = helper.compute(params_);
@@ -884,9 +887,10 @@ LSHConstructionParameters get_default_parameters(
 
 template <typename PointType, typename KeyType, typename PointSet>
 std::unique_ptr<LSHNearestNeighborTable<PointType, KeyType>> construct_table(
-    const PointSet& points, const LSHConstructionParameters& params) {
+    const PointSet& points, const LSHConstructionParameters& params, const std::map<int, std::set<int>>& metadata_storage) {
   wrapper::StaticTableFactory<PointType, KeyType, PointSet> factory(points,
-                                                                    params);
+                                                                    params,
+                                                                    metadata_storage);
   return std::move(factory.setup());
 }
 

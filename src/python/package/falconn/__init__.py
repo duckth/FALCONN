@@ -362,10 +362,10 @@ class LSHIndex:
         self._dataset = dataset
         if dataset.dtype == _numpy.float32:
             self._table = _internal.construct_table_dense_float(
-                dataset, self._params)
+                dataset, self._params, {})
         else:
             self._table = _internal.construct_table_dense_double(
-                dataset, self._params)
+                dataset, self._params, {})
 
     def _check_built(self):
         if self._dataset is None or self._table is None:

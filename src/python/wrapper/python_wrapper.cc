@@ -266,11 +266,11 @@ class PyLSHNearestNeighborTableDenseFloat {
 typedef PyLSHNearestNeighborTableDenseFloat OuterLSHTable;
 
 std::unique_ptr<OuterLSHTable> construct_table_dense_float(
-    OuterNumPyArray points, const LSHConstructionParameters &params) {
+    OuterNumPyArray points, const LSHConstructionParameters &params, const std::map<int, std::set<int>> &metadata_storage) {
   InnerPlainArrayPointSet converted_points = numpy_to_plain_dataset(points);
   std::unique_ptr<InnerLSHTable> inner_table =
       construct_table<InnerVector, int32_t, InnerPlainArrayPointSet>(
-          converted_points, params);
+          converted_points, params, metadata_storage);
   return std::unique_ptr<OuterLSHTable>(
       new OuterLSHTable(std::move(inner_table)));
 }
@@ -487,11 +487,11 @@ class PyLSHNearestNeighborTableDenseDouble {
 typedef PyLSHNearestNeighborTableDenseDouble OuterLSHTable;
 
 std::unique_ptr<OuterLSHTable> construct_table_dense_double(
-    OuterNumPyArray points, const LSHConstructionParameters &params) {
+    OuterNumPyArray points, const LSHConstructionParameters &params, const std::map<int, std::set<int>> &metadata_storage) {
   InnerPlainArrayPointSet converted_points = numpy_to_plain_dataset(points);
   std::unique_ptr<InnerLSHTable> inner_table =
       construct_table<InnerVector, int32_t, InnerPlainArrayPointSet>(
-          converted_points, params);
+          converted_points, params, metadata_storage);
   return std::unique_ptr<OuterLSHTable>(
       new OuterLSHTable(std::move(inner_table)));
 }
