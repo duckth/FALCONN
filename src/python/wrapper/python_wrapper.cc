@@ -33,14 +33,6 @@ inline EigenMap<T> numpy_to_eigen(NumPyArray<T> x) {
   return EigenMap<T>((T *)buf.ptr, buf.shape[0]);
 }
 
-template <typename T>
-inline std::set<T> numpy_to_set(NumPyArray<T> x) {
-  py::buffer_info buf = x.request();
-  if (bug.ndim != 1) {
-    throw PyLSHNearestNeighborTableError("expected a one-dimensional array");
-  }
-  
-}
 
 template <typename T>
 PlainArrayPointSet<T> numpy_to_plain_dataset(NumPyArray<T> dataset) {
@@ -102,9 +94,10 @@ class PyLSHNearestNeighborQueryDenseFloat {
     return inner_entity_->get_max_num_candidates();
   }
 
-  int32_t find_nearest_neighbor(OuterNumPyArray q, OuterNumPyArray q_filters) {
+  int32_t find_nearest_neighbor(OuterNumPyArray q, const std::vector<int> &q_filters) {
     InnerEigenMap converted_query = numpy_to_eigen(q);
-    std::set<int> converted_query_filters; // haha
+    std::set<int> converted_query_filters(q_filters.begin(), q_filters.end());
+
     py::gil_scoped_release release;
     return inner_entity_->find_nearest_neighbor(converted_query, converted_query_filters);
   }
@@ -183,9 +176,10 @@ class PyLSHNearestNeighborQueryPoolDenseFloat {
     return inner_entity_->get_max_num_candidates();
   }
 
-  int32_t find_nearest_neighbor(OuterNumPyArray q, OuterNumPyArray q_filters) {
+  int32_t find_nearest_neighbor(OuterNumPyArray q, const std::vector<int> &q_filters) {
     InnerEigenMap converted_query = numpy_to_eigen(q);
-    std::set<int> converted_query_filters; // haha
+    std::set<int> converted_query_filters(q_filters.begin(), q_filters.end());
+
     py::gil_scoped_release release;
     return inner_entity_->find_nearest_neighbor(converted_query, converted_query_filters);
   }
@@ -321,9 +315,10 @@ class PyLSHNearestNeighborQueryDenseDouble {
     return inner_entity_->get_max_num_candidates();
   }
 
-  int32_t find_nearest_neighbor(OuterNumPyArray q, OuterNumPyArray q_filters) {
+  int32_t find_nearest_neighbor(OuterNumPyArray q, const std::vector<int> &q_filters) {
     InnerEigenMap converted_query = numpy_to_eigen(q);
-    std::set<int> converted_query_filters; // haha
+    std::set<int> converted_query_filters(q_filters.begin(), q_filters.end());
+
     py::gil_scoped_release release;
     return inner_entity_->find_nearest_neighbor(converted_query, converted_query_filters);
   }
@@ -402,9 +397,10 @@ class PyLSHNearestNeighborQueryPoolDenseDouble {
     return inner_entity_->get_max_num_candidates();
   }
 
-  int32_t find_nearest_neighbor(OuterNumPyArray q, OuterNumPyArray q_filters) {
+  int32_t find_nearest_neighbor(OuterNumPyArray q, const std::vector<int> &q_filters) {
     InnerEigenMap converted_query = numpy_to_eigen(q);
-    std::set<int> converted_query_filters; // haha
+    std::set<int> converted_query_filters(q_filters.begin(), q_filters.end());
+
     py::gil_scoped_release release;
     return inner_entity_->find_nearest_neighbor(converted_query, converted_query_filters);
   }
