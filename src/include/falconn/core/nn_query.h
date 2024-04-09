@@ -41,55 +41,59 @@ class NearestNeighborQuery {
                                         int_fast64_t max_num_candidates) {
     auto start_time = std::chrono::high_resolution_clock::now();
 
-    table_query_->get_unique_candidates(q, num_probes, max_num_candidates,
-                                        &candidates_);
     auto distance_start_time = std::chrono::high_resolution_clock::now();
-
-    // TODO: use nullptr for pointer types
     LSHTableKeyType best_key = -1;
 
-    if (candidates_.size() > 0) {
-      typename DataStorage::SubsequenceIterator iter =
-          data_storage_.get_subsequence(candidates_);
+    int iteration = 0;
 
-      best_key = candidates_[0];
-      DistanceType best_distance = dst_(q_comp, iter.get_point());
-      ++iter;
+    while (best_key == -1) {
+      iteration += 1;
+      table_query_->get_unique_candidates(q, num_probes*iteration, max_num_candidates,
+                                          &candidates_);
+      // TODO: use nullptr for pointer types
 
-      printf("%d %f\n", candidates_[0], best_distance);
-      // pretty print int q_filter
-      for (std::set<int>::iterator it=q_filter.begin(); it!=q_filter.end(); ++it) {
-        printf("%d ", *it);
-      }
-      printf("\n");
+      if (candidates_.size() > 0) {
+        typename DataStorage::SubsequenceIterator iter =
+            data_storage_.get_subsequence(candidates_);
 
-      while (iter.is_valid()) {
-        auto point = iter.get_point();
-        int index = iter.get_key();
-        auto filter_iter = q_filter.begin();
-        bool is_good = true;
-        std::set<int> current_point_metadata = metadata_storage_[index];
-        printf("Found point: %d\n", index);
-        for (std::set<int>::iterator it=current_point_metadata.begin(); it!=current_point_metadata.end(); ++it) {
+        DistanceType best_distance = -1;
+        ++iter;
+
+        printf("%d %f\n", candidates_[0], best_distance);
+        // pretty print int q_filter
+        for (std::set<int>::iterator it=q_filter.begin(); it!=q_filter.end(); ++it) {
           printf("%d ", *it);
         }
         printf("\n");
-        for (std::set<int>::iterator it=q_filter.begin(); it!=q_filter.end(); ++it) {
-          auto search = current_point_metadata.find(*it);
-          bool found = search != current_point_metadata.end();
-          is_good = is_good && found;
-          // is_good = true;
-        }
-        if(is_good) {
-          DistanceType cur_distance = dst_(q_comp, point);
-          // printf("%d %f\n", iter.get_key(), cur_distance);
-          if (cur_distance < best_distance) {
-            best_distance = cur_distance;
-            best_key = index;
-            // printf("  is new best\n");
+
+        while (iter.is_valid()) {
+          auto point = iter.get_point();
+          int index = iter.get_key();
+          auto filter_iter = q_filter.begin();
+          bool is_good = true;
+          std::set<int> current_point_metadata = metadata_storage_[index];
+          printf("Found point: %d\n", index);
+          for (std::set<int>::iterator it=current_point_metadata.begin(); it!=current_point_metadata.end(); ++it) {
+            printf("%d ", *it);
           }
+          printf("\n");
+          for (std::set<int>::iterator it=q_filter.begin(); it!=q_filter.end(); ++it) {
+            auto search = current_point_metadata.find(*it);
+            bool found = search != current_point_metadata.end();
+            is_good = is_good && found;
+            // is_good = true;
+          }
+          if(is_good) {
+            DistanceType cur_distance = dst_(q_comp, point);
+            // printf("%d %f\n", iter.get_key(), cur_distance);
+            if (cur_distance < best_distance || best_distance == -1) {
+              best_distance = cur_distance;
+              best_key = index;
+              // printf("  is new best\n");
+            }
+          }
+          ++iter;
         }
-        ++iter;
       }
     }
 
