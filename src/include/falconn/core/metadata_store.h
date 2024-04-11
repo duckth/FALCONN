@@ -24,6 +24,6 @@ namespace core {
       }
       private:
         const std::unordered_map<int, std::unordered_set<int>> small_labels_;
-  }
+  };
 }  // namespace core
 }  // namespace falconn
