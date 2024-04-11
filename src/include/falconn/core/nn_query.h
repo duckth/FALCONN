@@ -42,6 +42,8 @@ class NearestNeighborQuery {
                                         int_fast64_t max_num_candidates) {
     auto start_time = std::chrono::high_resolution_clock::now();
 
+    auto metadata_store = MetadataStore();
+
     auto distance_start_time = std::chrono::high_resolution_clock::now();
     LSHTableKeyType best_key = -1;
 
@@ -72,7 +74,7 @@ class NearestNeighborQuery {
           int index = iter.get_key();
           auto filter_iter = q_filter.begin();
           bool is_good = true;
-          printf(MetadataStore.get_indices_for_label(1).size());
+          printf(metadata_store.get_indices_for_label(1).size());
           std::set<int> current_point_metadata = metadata_storage_[index];
           printf("Found point: %d\n", index);
           for (std::set<int>::iterator it=current_point_metadata.begin(); it!=current_point_metadata.end(); ++it) {
