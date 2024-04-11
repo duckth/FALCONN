@@ -14,6 +14,7 @@
 
 #include "../falconn_global.h"
 #include "heap.h"
+#include "metadata_store.h"
 
 namespace falconn {
 namespace core {
@@ -71,6 +72,7 @@ class NearestNeighborQuery {
           int index = iter.get_key();
           auto filter_iter = q_filter.begin();
           bool is_good = true;
+          printf(MetadataStore.get_indices_for_label(1).size())
           std::set<int> current_point_metadata = metadata_storage_[index];
           printf("Found point: %d\n", index);
           for (std::set<int>::iterator it=current_point_metadata.begin(); it!=current_point_metadata.end(); ++it) {
