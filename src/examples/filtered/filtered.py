@@ -123,10 +123,10 @@ if __name__ == '__main__':
     mydic = defaultdict(lambda: set())
     # breakpoint()
     # metadata = dict(dataset_metadata.tolil().items())
-    
+
     for idx, el in dict(dataset_metadata.todok().items()).keys():
         mydic[idx].add(el)
-    
+
     print('Done')
 
 
@@ -234,6 +234,8 @@ if __name__ == '__main__':
             # if datapoint_fulfills_constrains(dataset_metadata[result].toarray()[0], queries_metadata[i]):
                 # real_point = result
                 # break
+        if (i % 100 == 0):
+            print('Processing query {}'.format(i))
         # breakpoint()
         # print('Res object: {}, answer: {}'.format(res, answers[i]))
         # print('Fulfills constraints: {}'.format(datapoint_fulfills_constrains(dataset_metadata[res].toarray()[0], queries_metadata[i])))
