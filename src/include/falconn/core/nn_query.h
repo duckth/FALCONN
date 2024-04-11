@@ -9,6 +9,8 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <map>
+#include <set>
 
 #include "../falconn_global.h"
 #include "heap.h"
@@ -28,41 +30,70 @@ template <typename LSHTableQuery, typename LSHTablePointType,
 class NearestNeighborQuery {
  public:
   NearestNeighborQuery(LSHTableQuery* table_query,
-                       const DataStorage& data_storage)
-      : table_query_(table_query), data_storage_(data_storage) {}
+                       const DataStorage& data_storage,
+                       const std::map<int,std::set<int>>& metadata_storage)
+      : table_query_(table_query), data_storage_(data_storage), metadata_storage_(metadata_storage) {}
 
   LSHTableKeyType find_nearest_neighbor(const LSHTablePointType& q,
                                         const ComparisonPointType& q_comp,
+                                        const std::set<int>& q_filter,
                                         int_fast64_t num_probes,
                                         int_fast64_t max_num_candidates) {
     auto start_time = std::chrono::high_resolution_clock::now();
 
-    table_query_->get_unique_candidates(q, num_probes, max_num_candidates,
-                                        &candidates_);
     auto distance_start_time = std::chrono::high_resolution_clock::now();
-
-    // TODO: use nullptr for pointer types
     LSHTableKeyType best_key = -1;
 
-    if (candidates_.size() > 0) {
-      typename DataStorage::SubsequenceIterator iter =
-          data_storage_.get_subsequence(candidates_);
+    int iteration = 0;
 
-      best_key = candidates_[0];
-      DistanceType best_distance = dst_(q_comp, iter.get_point());
-      ++iter;
+    while (best_key == -1 && iteration < 5) {
+      iteration += 1;
+      table_query_->get_unique_candidates(q, num_probes*iteration, max_num_candidates,
+                                          &candidates_);
+      // TODO: use nullptr for pointer types
 
-      // printf("%d %f\n", candidates_[0], best_distance);
+      if (candidates_.size() > 0) {
+        typename DataStorage::SubsequenceIterator iter =
+            data_storage_.get_subsequence(candidates_);
 
-      while (iter.is_valid()) {
-        DistanceType cur_distance = dst_(q_comp, iter.get_point());
-        // printf("%d %f\n", iter.get_key(), cur_distance);
-        if (cur_distance < best_distance) {
-          best_distance = cur_distance;
-          best_key = iter.get_key();
-          // printf("  is new best\n");
-        }
+        DistanceType best_distance = -1;
         ++iter;
+
+        printf("%d %f\n", candidates_[0], best_distance);
+        // pretty print int q_filter
+        for (std::set<int>::iterator it=q_filter.begin(); it!=q_filter.end(); ++it) {
+          printf("%d ", *it);
+        }
+        printf("\n");
+
+        while (iter.is_valid()) {
+          auto point = iter.get_point();
+          int index = iter.get_key();
+          auto filter_iter = q_filter.begin();
+          bool is_good = true;
+          std::set<int> current_point_metadata = metadata_storage_[index];
+          printf("Found point: %d\n", index);
+          for (std::set<int>::iterator it=current_point_metadata.begin(); it!=current_point_metadata.end(); ++it) {
+            printf("%d ", *it);
+          }
+          printf("\n");
+          for (std::set<int>::iterator it=q_filter.begin(); it!=q_filter.end(); ++it) {
+            auto search = current_point_metadata.find(*it);
+            bool found = search != current_point_metadata.end();
+            is_good = is_good && found;
+            // is_good = true;
+          }
+          if(is_good) {
+            DistanceType cur_distance = dst_(q_comp, point);
+            // printf("%d %f\n", iter.get_key(), cur_distance);
+            if (cur_distance < best_distance || best_distance == -1) {
+              best_distance = cur_distance;
+              best_key = index;
+              // printf("  is new best\n");
+            }
+          }
+          ++iter;
+        }
       }
     }
 
@@ -234,6 +265,7 @@ class NearestNeighborQuery {
  private:
   LSHTableQuery* table_query_;
   const DataStorage& data_storage_;
+  std::map<int,std::set<int>> metadata_storage_;
   std::vector<LSHTableKeyType> candidates_;
   DistanceFunction dst_;
   SimpleHeap<DistanceType, LSHTableKeyType> heap_;

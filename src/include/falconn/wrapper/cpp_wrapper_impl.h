@@ -5,6 +5,8 @@
 #include <random>
 #include <thread>
 #include <type_traits>
+#include <map>
+#include <set>
 
 #include "data_storage_adapter.h"
 
@@ -290,7 +292,7 @@ class LSHNNQueryWrapper : public LSHNearestNeighborQuery<PointType, KeyType> {
  public:
   LSHNNQueryWrapper(const LSHTable& parent, int_fast64_t num_probes,
                     int_fast64_t max_num_candidates,
-                    const DataStorage& data_storage)
+                    const DataStorage& data_storage, std::map<int,std::set<int>>& metadata_storage)
       : num_probes_(num_probes), max_num_candidates_(max_num_candidates) {
     if (num_probes <= 0) {
       throw LSHNearestNeighborTableError(
@@ -298,11 +300,11 @@ class LSHNNQueryWrapper : public LSHNearestNeighborQuery<PointType, KeyType> {
     }
     internal_query_.reset(new typename LSHTable::Query(parent));
     internal_nn_query_.reset(
-        new NNQueryType(internal_query_.get(), data_storage));
+        new NNQueryType(internal_query_.get(), data_storage, metadata_storage));
   }
 
-  KeyType find_nearest_neighbor(const PointType& q) {
-    return internal_nn_query_->find_nearest_neighbor(q, q, num_probes_,
+  KeyType find_nearest_neighbor(const PointType& q, std::set<int> filters) {
+    return internal_nn_query_->find_nearest_neighbor(q, q, filters, num_probes_,
                                                      max_num_candidates_);
   }
 
@@ -375,7 +377,7 @@ class LSHNNQueryPool : public LSHNearestNeighborQueryPool<PointType, KeyType> {
   LSHNNQueryPool(const LSHTable& parent, int_fast64_t num_probes,
                  int_fast64_t max_num_candidates,
                  const DataStorage& data_storage,
-                 int_fast64_t num_query_objects)
+                 int_fast64_t num_query_objects, std::map<int,std::set<int>>& metadata_storage)
       : locks_(num_query_objects),
         num_probes_(num_probes),
         max_num_candidates_(max_num_candidates) {
@@ -391,17 +393,17 @@ class LSHNNQueryPool : public LSHNearestNeighborQueryPool<PointType, KeyType> {
       std::unique_ptr<typename LSHTable::Query> cur_query(
           new typename LSHTable::Query(parent));
       std::unique_ptr<NNQueryType> cur_nn_query(
-          new NNQueryType(cur_query.get(), data_storage));
+          new NNQueryType(cur_query.get(), data_storage, metadata_storage));
       internal_queries_.push_back(std::move(cur_query));
       internal_nn_queries_.push_back(std::move(cur_nn_query));
       locks_[ii].clear(std::memory_order_release);
     }
   }
 
-  KeyType find_nearest_neighbor(const PointType& q) {
+  KeyType find_nearest_neighbor(const PointType& q, std::set<int> filters) {
     int_fast32_t query_index = get_query_index_and_lock();
     KeyType res = internal_nn_queries_[query_index]->find_nearest_neighbor(
-        q, q, num_probes_, max_num_candidates_);
+        q, q, filters, num_probes_, max_num_candidates_);
     unlock_query(query_index);
     return res;
   }
@@ -519,12 +521,14 @@ class LSHNNTableWrapper : public LSHNearestNeighborTable<PointType, KeyType> {
                     std::unique_ptr<LSHTable> lsh_table,
                     std::unique_ptr<HashTableFactory> hash_table_factory,
                     std::unique_ptr<CompositeHashTable> composite_hash_table,
-                    std::unique_ptr<DataStorage> data_storage)
+                    std::unique_ptr<DataStorage> data_storage,
+                    std::unique_ptr<std::map<int,std::set<int>>> metadata_storage)
       : lsh_(std::move(lsh)),
         lsh_table_(std::move(lsh_table)),
         hash_table_factory_(std::move(hash_table_factory)),
         composite_hash_table_(std::move(composite_hash_table)),
-        data_storage_(std::move(data_storage)) {}
+        data_storage_(std::move(data_storage)),
+        metadata_storage_(std::move(metadata_storage)) {}
 
   void add_table() {
     lsh_->add_table();
@@ -545,7 +549,7 @@ class LSHNNTableWrapper : public LSHNearestNeighborTable<PointType, KeyType> {
         nn_query(
             new LSHNNQueryWrapper<PointType, KeyType, DistanceType, LSHTable,
                                   ScalarType, DistanceFunction, DataStorage>(
-                *lsh_table_, num_probes, max_num_candidates, *data_storage_));
+                *lsh_table_, num_probes, max_num_candidates, *data_storage_, *metadata_storage_));
     return std::move(nn_query);
   }
 
@@ -566,7 +570,7 @@ class LSHNNTableWrapper : public LSHNearestNeighborTable<PointType, KeyType> {
             new LSHNNQueryPool<PointType, KeyType, DistanceType, LSHTable,
                                ScalarType, DistanceFunction, DataStorage>(
                 *lsh_table_, num_probes, max_num_candidates, *data_storage_,
-                num_query_objects));
+                num_query_objects, *metadata_storage_));
     return std::move(nn_query_pool);
   }
 
@@ -578,6 +582,7 @@ class LSHNNTableWrapper : public LSHNearestNeighborTable<PointType, KeyType> {
   std::unique_ptr<HashTableFactory> hash_table_factory_;
   std::unique_ptr<CompositeHashTable> composite_hash_table_;
   std::unique_ptr<DataStorage> data_storage_;
+  std::unique_ptr<std::map<int,std::set<int>>> metadata_storage_;
 };
 
 template <typename PointType, typename KeyType, typename PointSet>
@@ -589,8 +594,9 @@ class StaticTableFactory {
       DataStorageType;
 
   StaticTableFactory(const PointSet& points,
-                     const LSHConstructionParameters& params)
-      : points_(points), params_(params) {}
+                     const LSHConstructionParameters& params,
+                     const std::map<int, std::set<int>>& metadata_points)
+      : points_(points), params_(params), metadata_points_(metadata_points) {}
 
   std::unique_ptr<LSHNearestNeighborTable<PointType, KeyType>> setup() {
     if (params_.dimension < 1) {
@@ -642,6 +648,8 @@ class StaticTableFactory {
     data_storage_ = std::move(
         DataStorageAdapter<PointSet>::template construct_data_storage<KeyType>(
             points_));
+
+    metadata_storage_ = std::make_unique<std::map<int, std::set<int>>>(std::move(metadata_points_));
 
     ComputeNumberOfHashBits<PointType> helper;
     num_bits_ = helper.compute(params_);
@@ -839,7 +847,7 @@ class StaticTableFactory {
                                        LSHType, HashTableFactoryType,
                                        CompositeHashTableType, DataStorageType>(
         std::move(lsh), std::move(lsh_table), std::move(factory),
-        std::move(composite_table), std::move(data_storage_)));
+        std::move(composite_table), std::move(data_storage_), std::move(metadata_storage_)));
   }
 
   const static int_fast32_t kHashTypeIndex = 0;
@@ -850,7 +858,9 @@ class StaticTableFactory {
 
   const PointSet& points_;
   const LSHConstructionParameters& params_;
+  const std::map<int, std::set<int>>& metadata_points_;
   std::unique_ptr<DataStorageType> data_storage_;
+  std::unique_ptr<std::map<int, std::set<int>>> metadata_storage_;
   int_fast32_t num_bits_;
   int_fast64_t n_;
   std::unique_ptr<LSHNearestNeighborTable<PointType, KeyType>> table_ = nullptr;
@@ -878,9 +888,10 @@ LSHConstructionParameters get_default_parameters(
 
 template <typename PointType, typename KeyType, typename PointSet>
 std::unique_ptr<LSHNearestNeighborTable<PointType, KeyType>> construct_table(
-    const PointSet& points, const LSHConstructionParameters& params) {
+    const PointSet& points, const LSHConstructionParameters& params, const std::map<int, std::set<int>>& metadata_storage) {
   wrapper::StaticTableFactory<PointType, KeyType, PointSet> factory(points,
-                                                                    params);
+                                                                    params,
+                                                                    metadata_storage);
   return std::move(factory.setup());
 }
 

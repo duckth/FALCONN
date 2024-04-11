@@ -6,11 +6,12 @@
 #include <memory>
 #include <type_traits>
 #include <vector>
+#include <set>
+#include <map>
 
 #include <Eigen/Dense>
 
 #include "falconn_global.h"
-
 ///
 /// The main namespace.
 ///
@@ -60,7 +61,7 @@ class LSHNearestNeighborQuery {
   ///
   /// Finds the key of the closest candidate in the probing sequence for q.
   ///
-  virtual KeyType find_nearest_neighbor(const PointType& q) = 0;
+  virtual KeyType find_nearest_neighbor(const PointType& q, std::set<int> filters) = 0;
 
   ///
   /// Find the keys of the k closest candidates in the probing sequence for q.
@@ -147,7 +148,7 @@ class LSHNearestNeighborQueryPool {
   ///
   /// Finds the key of the closest candidate in the probing sequence for q.
   ///
-  virtual KeyType find_nearest_neighbor(const PointType& q) = 0;
+  virtual KeyType find_nearest_neighbor(const PointType& q, std::set<int> filters) = 0;
 
   ///
   /// Find the keys of the k closest candidates in the probing sequence for q.
@@ -477,7 +478,7 @@ class LSHNNTableSetupError : public FalconnError {
 template <typename PointType, typename KeyType = int32_t,
           typename PointSet = std::vector<PointType>>
 std::unique_ptr<LSHNearestNeighborTable<PointType, KeyType>> construct_table(
-    const PointSet& points, const LSHConstructionParameters& params);
+    const PointSet& points, const LSHConstructionParameters& params, const std::map<int, std::set<int>>& metadata_storage);
 
 }  // namespace falconn
 
