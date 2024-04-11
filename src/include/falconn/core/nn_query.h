@@ -33,7 +33,7 @@ class NearestNeighborQuery {
   NearestNeighborQuery(LSHTableQuery* table_query,
                        const DataStorage& data_storage,
                        const std::map<int,std::set<int>>& metadata_storage)
-      : table_query_(table_query), data_storage_(data_storage), metadata_storage_(metadata_storage) {}
+      : table_query_(table_query), data_storage_(data_storage), metadata_storage_(metadata_storage), small_labels_store_(MetadataStore()) {}
 
   LSHTableKeyType find_nearest_neighbor(const LSHTablePointType& q,
                                         const ComparisonPointType& q_comp,
@@ -41,8 +41,6 @@ class NearestNeighborQuery {
                                         int_fast64_t num_probes,
                                         int_fast64_t max_num_candidates) {
     auto start_time = std::chrono::high_resolution_clock::now();
-
-    auto metadata_store = MetadataStore();
 
     auto distance_start_time = std::chrono::high_resolution_clock::now();
     LSHTableKeyType best_key = -1;
@@ -74,7 +72,7 @@ class NearestNeighborQuery {
           int index = iter.get_key();
           auto filter_iter = q_filter.begin();
           bool is_good = true;
-          printf("%d",metadata_store.get_indices_for_label(1).size());
+          printf("%d\n",metadata_store_.get_indices_for_label(1).size());
           std::set<int> current_point_metadata = metadata_storage_[index];
           printf("Found point: %d\n", index);
           for (std::set<int>::iterator it=current_point_metadata.begin(); it!=current_point_metadata.end(); ++it) {
@@ -270,6 +268,7 @@ class NearestNeighborQuery {
   LSHTableQuery* table_query_;
   const DataStorage& data_storage_;
   std::map<int,std::set<int>> metadata_storage_;
+  std::map<int,std::set<int>> small_labels_store_;
   std::vector<LSHTableKeyType> candidates_;
   DistanceFunction dst_;
   SimpleHeap<DistanceType, LSHTableKeyType> heap_;
