@@ -44,6 +44,7 @@ class NearestNeighborQuery {
 
     auto distance_start_time = std::chrono::high_resolution_clock::now();
     LSHTableKeyType best_key = -1;
+    bool no_distance_found = true;
 
     int iteration = 0;
 
@@ -88,8 +89,9 @@ class NearestNeighborQuery {
           if(is_good) {
             DistanceType cur_distance = dst_(q_comp, point);
             // printf("%d %f\n", iter.get_key(), cur_distance);
-            if (cur_distance < best_distance || best_distance == -1) {
+            if (cur_distance < best_distance || no_distance_found) {
               best_distance = cur_distance;
+              no_distance_found = false;
               best_key = index;
               // printf("  is new best\n");
             }
