@@ -268,7 +268,7 @@ class NearestNeighborQuery {
   LSHTableQuery* table_query_;
   const DataStorage& data_storage_;
   std::map<int,std::set<int>> metadata_storage_;
-  std::map<int,std::set<int>> small_labels_store_;
+  MetadataStore small_labels_store_;
   std::vector<LSHTableKeyType> candidates_;
   DistanceFunction dst_;
   SimpleHeap<DistanceType, LSHTableKeyType> heap_;
