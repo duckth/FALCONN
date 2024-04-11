@@ -16,3 +16,4 @@ compile_flags.txt
 dataset/
 python_package
 .env
+.vscode
