@@ -47,6 +47,7 @@ class NearestNeighborQuery {
     bool no_distance_found = true;
 
     int iteration = 0;
+    printf("%d\n",small_labels_store_.get_indices_for_label(1).size());
 
     while (best_key == -1 && iteration < 5) {
       iteration += 1;
@@ -61,25 +62,24 @@ class NearestNeighborQuery {
         DistanceType best_distance = -1;
         ++iter;
 
-        printf("%d %f\n", candidates_[0], best_distance);
+
+        // printf("%d %f\n", candidates_[0], best_distance);
         // pretty print int q_filter
-        for (std::set<int>::iterator it=q_filter.begin(); it!=q_filter.end(); ++it) {
-          printf("%d ", *it);
-        }
-        printf("\n");
+        // for (std::set<int>::iterator it=q_filter.begin(); it!=q_filter.end(); ++it) {
+        //   printf("%d ", *it);
+        // }
+        // printf("\n");
 
         while (iter.is_valid()) {
           auto point = iter.get_point();
           int index = iter.get_key();
-          auto filter_iter = q_filter.begin();
           bool is_good = true;
-          printf("%d\n",small_labels_store_.get_indices_for_label(1).size());
           std::set<int> current_point_metadata = metadata_storage_[index];
-          printf("Found point: %d\n", index);
-          for (std::set<int>::iterator it=current_point_metadata.begin(); it!=current_point_metadata.end(); ++it) {
-            printf("%d ", *it);
-          }
-          printf("\n");
+          // printf("Found point: %d\n", index);
+          // for (std::set<int>::iterator it=current_point_metadata.begin(); it!=current_point_metadata.end(); ++it) {
+          //   printf("%d ", *it);
+          // }
+          // printf("\n");
           for (std::set<int>::iterator it=q_filter.begin(); it!=q_filter.end(); ++it) {
             auto search = current_point_metadata.find(*it);
             bool found = search != current_point_metadata.end();
@@ -90,10 +90,11 @@ class NearestNeighborQuery {
             DistanceType cur_distance = dst_(q_comp, point);
             // printf("%d %f\n", iter.get_key(), cur_distance);
             if (cur_distance < best_distance || no_distance_found) {
+
               best_distance = cur_distance;
               no_distance_found = false;
               best_key = index;
-              // printf("  is new best\n");
+              printf("%d  is new best\n", best_key);
             }
           }
           ++iter;
