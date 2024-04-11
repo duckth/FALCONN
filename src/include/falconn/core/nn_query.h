@@ -46,7 +46,7 @@ class NearestNeighborQuery {
 
     int iteration = 0;
 
-    while (best_key == -1) {
+    while (best_key == -1 && iteration < 5) {
       iteration += 1;
       table_query_->get_unique_candidates(q, num_probes*iteration, max_num_candidates,
                                           &candidates_);
