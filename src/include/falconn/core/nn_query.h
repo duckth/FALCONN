@@ -47,7 +47,7 @@ class NearestNeighborQuery {
     bool no_distance_found = true;
     int smallest_label = -1;
     int smallest_size = -1;
-    for (std::unordered_set<int>::iterator it=q_filter.begin(); it!=q_filter.end(); ++it) {
+    for (std::set<int>::iterator it=q_filter.begin(); it!=q_filter.end(); ++it) {
       int size = small_labels_store_.get_indices_for_label(*it).size();
       if(size != 0 && (size<smallest_size || smallest_size == -1)) {
         smallest_label = *it;
