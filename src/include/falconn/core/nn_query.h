@@ -84,6 +84,7 @@ class NearestNeighborQuery {
       }
 
     }
+    int iteration = 0;
 
     while (best_key == -1 && iteration < 5) {
       iteration += 1;
