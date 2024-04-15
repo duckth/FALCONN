@@ -16,7 +16,7 @@ namespace core {
       ~MetadataStore() {}
 
       std::vector<int> get_indices_for_label(int label) {
-        return small_labels_.[label];
+        return small_labels_[label];
       }
 
       const std::unordered_map<int, std::vector<int>>& get_small_labels() const {
