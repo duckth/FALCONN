@@ -19,11 +19,11 @@ namespace core {
         return small_labels_[label];
       }
 
-      const std::unordered_map<int, std::vector<int>>& get_small_labels() const {
+      std::unordered_map<int, std::vector<int>>& get_small_labels() {
         return small_labels_;
       }
       private:
-        const std::unordered_map<int, std::vector<int>> small_labels_;
+        std::unordered_map<int, std::vector<int>> small_labels_;
   };
 }  // namespace core
 }  // namespace falconn
