@@ -45,9 +45,45 @@ class NearestNeighborQuery {
     auto distance_start_time = std::chrono::high_resolution_clock::now();
     LSHTableKeyType best_key = -1;
     bool no_distance_found = true;
+    int smallest_label = -1;
+    int smallest_size = -1;
+    for (std::unordered_set<int>::iterator it=q_filter.begin(); it!=q_filter.end(); ++it) {
+      int size = small_labels_store_.get_indices_for_label(*it).size();
+      if(size != 0 && (size<smallest_size || smallest_size == -1)) {
+        smallest_label = *it;
+        smallest_size = size;
+      }
+    }
 
-    int iteration = 0;
-    printf("%d\n",small_labels_store_.get_indices_for_label(1).size());
+    if(smallest_label != -1)
+    {
+      std::vector<int> indices = small_labels_store_.get_indices_for_label(smallest_label);
+      auto iter = data_storage_.get_subsequence(indices);
+      DistanceType best_distance = -1;
+      ++iter;
+
+      while (iter.is_valid()) {
+        auto point = iter.get_point();
+        int index = iter.get_key();
+        bool is_good = true;
+        std::set<int> current_point_metadata = metadata_storage_[index];
+        for (std::set<int>::iterator it=q_filter.begin(); it!=q_filter.end(); ++it) {
+          auto search = current_point_metadata.find(*it);
+          bool found = search != current_point_metadata.end();
+          is_good = is_good && found;
+        }
+        if(is_good) {
+          DistanceType cur_distance = dst_(q_comp, point);
+          if (cur_distance < best_distance || no_distance_found) {
+            best_distance = cur_distance;
+            no_distance_found = false;
+            best_key = index;
+          }
+        }
+        ++iter;
+      }
+
+    }
 
     while (best_key == -1 && iteration < 5) {
       iteration += 1;
