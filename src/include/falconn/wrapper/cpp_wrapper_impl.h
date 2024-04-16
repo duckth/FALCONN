@@ -604,7 +604,7 @@ class StaticTableFactory {
                      const std::map<int, std::set<int>>& metadata_points,
                      std::unordered_map<int, std::vector<int>>& small_labels_store
                      )
-      : points_(points), params_(params), metadata_points_(metadata_points) {}
+      : points_(points), params_(params), metadata_points_(metadata_points), small_labels_(small_labels_store) {}
 
   std::unique_ptr<LSHNearestNeighborTable<PointType, KeyType>> setup() {
     if (params_.dimension < 1) {
@@ -658,7 +658,7 @@ class StaticTableFactory {
             points_));
 
     metadata_storage_ = std::make_unique<std::map<int, std::set<int>>>(std::move(metadata_points_));
-    small_labels_store_ = std::make_unique<std::unordered_map<int, std::vector<int>>>(std::move(small_labels_store_));
+    small_labels_store_ = std::make_unique<std::unordered_map<int, std::vector<int>>>(std::move(small_labels_));
 
     ComputeNumberOfHashBits<PointType> helper;
     num_bits_ = helper.compute(params_);
@@ -868,6 +868,7 @@ class StaticTableFactory {
   const PointSet& points_;
   const LSHConstructionParameters& params_;
   const std::map<int, std::set<int>>& metadata_points_;
+  std::unordered_map<int, std::vector<int>>& small_labels_;
   std::unique_ptr<DataStorageType> data_storage_;
   std::unique_ptr<std::map<int, std::set<int>>> metadata_storage_;
   std::unique_ptr<std::unordered_map<int, std::vector<int>>> small_labels_store_;
