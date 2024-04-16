@@ -526,7 +526,7 @@ class LSHNNTableWrapper : public LSHNearestNeighborTable<PointType, KeyType> {
                     std::unique_ptr<CompositeHashTable> composite_hash_table,
                     std::unique_ptr<DataStorage> data_storage,
                     std::unique_ptr<std::map<int,std::set<int>>> metadata_storage,
-                    std::unique_ptr<std::unordered_map<int, std::vector<int>>>& small_labels_store)
+                    std::unique_ptr<std::unordered_map<int, std::vector<int>>> small_labels_store)
       : lsh_(std::move(lsh)),
         lsh_table_(std::move(lsh_table)),
         hash_table_factory_(std::move(hash_table_factory)),
