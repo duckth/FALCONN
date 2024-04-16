@@ -354,8 +354,8 @@ class LSHIndex:
             raise TypeError('dataset must be an instance of numpy.ndarray')
         if len(dataset.shape) != 2:
             raise ValueError('dataset must be a two-dimensional array')
-        if dataset.dtype != _numpy.float32 and dataset.dtype != _numpy.float64:
-            raise TypeError('dataset must consist of floats or doubles')
+        # if dataset.dtype != _numpy.float32 and dataset.dtype != _numpy.float64:
+        #     raise TypeError('dataset must consist of floats or doubles')
         if dataset.shape[1] != self._params.dimension:
             raise ValueError(
                 'dataset dimension mismatch: {} expected, but {} found'.format(
