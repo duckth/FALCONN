@@ -134,7 +134,7 @@ class NearestNeighborQuery {
               best_distance = cur_distance;
               no_distance_found = false;
               best_key = index;
-              printf("%d  is new best\n", best_key);
+              /* printf("%d  is new best\n", best_key); */
             }
           }
           ++iter;
