@@ -10,6 +10,7 @@
 #include <utility>
 #include <vector>
 #include <map>
+#include <unordered_map>
 #include <set>
 
 #include "../falconn_global.h"
@@ -32,8 +33,10 @@ class NearestNeighborQuery {
  public:
   NearestNeighborQuery(LSHTableQuery* table_query,
                        const DataStorage& data_storage,
-                       const std::map<int,std::set<int>>& metadata_storage)
-      : table_query_(table_query), data_storage_(data_storage), metadata_storage_(metadata_storage), small_labels_store_(MetadataStore()) {}
+                       const std::map<int,std::set<int>>& metadata_storage,
+                       const std::unordered_map<int, std::vector<int>>& small_labels_store
+                       )
+      : table_query_(table_query), data_storage_(data_storage), metadata_storage_(metadata_storage), small_labels_store_(MetadataStore(small_labels_store)) {}
 
   LSHTableKeyType find_nearest_neighbor(const LSHTablePointType& q,
                                         const ComparisonPointType& q_comp,
