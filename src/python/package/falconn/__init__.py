@@ -75,7 +75,7 @@ from _falconn import LSHConstructionParameters, QueryStatistics, DistanceFunctio
 
 class Queryable:
     """A simple wrapper for query objects and query pools.
-    
+
     Instances of `Queryable` are returned by the methods
     `construct_query_object` and `construct_query_pool` of `LSHIndex`.
     You are not expected to construct instances of `Queryable` directly.
@@ -324,7 +324,7 @@ class LSHIndex:
         self._table = None
         self._metadata = None
 
-    def setup(self, dataset, metadata):
+    def setup(self, dataset, metadata, small_labels):
         """Build the LSH data structure from a given dataset.
 
         The method builds the LSH data structure using the parameters
@@ -362,12 +362,13 @@ class LSHIndex:
                     self._params.dimension, dataset.shape[1]))
         self._dataset = dataset
         self._metadata = metadata;
+        self._small_labels = small_labels;
         if dataset.dtype == _numpy.float32:
             self._table = _internal.construct_table_dense_float(
-                dataset, self._params, metadata)
+                dataset, self._params, metadata, small_labels)
         else:
             self._table = _internal.construct_table_dense_double(
-                dataset, self._params, metadata)
+                dataset, self._params, metadata, small_labels)
 
     def _check_built(self):
         if self._dataset is None or self._table is None:
