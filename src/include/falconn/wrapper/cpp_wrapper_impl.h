@@ -294,7 +294,7 @@ class LSHNNQueryWrapper : public LSHNearestNeighborQuery<PointType, KeyType> {
  public:
   LSHNNQueryWrapper(const LSHTable& parent, int_fast64_t num_probes,
                     int_fast64_t max_num_candidates,
-                    const DataStorage& data_storage, std::map<int,std::set<int>>& metadata_storage, std::unordered_map<int, std::vector<int>>& small_labels_store)
+                    const DataStorage& data_storage, std::unordered_map<int,std::vector<int>>& metadata_storage, std::unordered_map<int, std::vector<int>>& small_labels_store)
       : num_probes_(num_probes), max_num_candidates_(max_num_candidates) {
     if (num_probes <= 0) {
       throw LSHNearestNeighborTableError(
@@ -379,7 +379,7 @@ class LSHNNQueryPool : public LSHNearestNeighborQueryPool<PointType, KeyType> {
   LSHNNQueryPool(const LSHTable& parent, int_fast64_t num_probes,
                  int_fast64_t max_num_candidates,
                  const DataStorage& data_storage,
-                 int_fast64_t num_query_objects, std::map<int,std::set<int>>& metadata_storage,
+                 int_fast64_t num_query_objects, std::unordered_map<int,std::vector<int>>& metadata_storage,
                 std::unordered_map<int, std::vector<int>>& small_labels_store)
       : locks_(num_query_objects),
         num_probes_(num_probes),
@@ -525,7 +525,7 @@ class LSHNNTableWrapper : public LSHNearestNeighborTable<PointType, KeyType> {
                     std::unique_ptr<HashTableFactory> hash_table_factory,
                     std::unique_ptr<CompositeHashTable> composite_hash_table,
                     std::unique_ptr<DataStorage> data_storage,
-                    std::unique_ptr<std::map<int,std::set<int>>> metadata_storage,
+                    std::unique_ptr<std::unordered_map<int,std::vector<int>>> metadata_storage,
                     std::unique_ptr<std::unordered_map<int, std::vector<int>>> small_labels_store)
       : lsh_(std::move(lsh)),
         lsh_table_(std::move(lsh_table)),
@@ -587,7 +587,7 @@ class LSHNNTableWrapper : public LSHNearestNeighborTable<PointType, KeyType> {
   std::unique_ptr<HashTableFactory> hash_table_factory_;
   std::unique_ptr<CompositeHashTable> composite_hash_table_;
   std::unique_ptr<DataStorage> data_storage_;
-  std::unique_ptr<std::map<int,std::set<int>>> metadata_storage_;
+  std::unique_ptr<std::unordered_map<int,std::vector<int>>> metadata_storage_;
   std::unique_ptr<std::unordered_map<int, std::vector<int>>> small_labels_store_;
 };
 
@@ -601,7 +601,7 @@ class StaticTableFactory {
 
   StaticTableFactory(const PointSet& points,
                      const LSHConstructionParameters& params,
-                     const std::map<int, std::set<int>>& metadata_points,
+                     const std::unordered_map<int, std::vector<int>>& metadata_points,
                      std::unordered_map<int, std::vector<int>>& small_labels_store
                      )
       : points_(points), params_(params), metadata_points_(metadata_points), small_labels_(small_labels_store) {}
@@ -657,7 +657,7 @@ class StaticTableFactory {
         DataStorageAdapter<PointSet>::template construct_data_storage<KeyType>(
             points_));
 
-    metadata_storage_ = std::make_unique<std::map<int, std::set<int>>>(std::move(metadata_points_));
+    metadata_storage_ = std::make_unique<std::unordered_map<int, std::vector<int>>>(std::move(metadata_points_));
     small_labels_store_ = std::make_unique<std::unordered_map<int, std::vector<int>>>(std::move(small_labels_));
 
     ComputeNumberOfHashBits<PointType> helper;
@@ -672,7 +672,12 @@ class StaticTableFactory {
 
  private:
   void setup0() {
-    if (num_bits_ <= 32) {
+    if (num_bits_ <= 8) {
+      printf("Using 8 bits");
+      typedef uint8_t HashType;
+      HashType tmp;
+      setup1(std::make_tuple(tmp));
+    } else if (num_bits_ <= 32) {
       typedef uint32_t HashType;
       HashType tmp;
       setup1(std::make_tuple(tmp));
@@ -867,10 +872,10 @@ class StaticTableFactory {
 
   const PointSet& points_;
   const LSHConstructionParameters& params_;
-  const std::map<int, std::set<int>>& metadata_points_;
+  const std::unordered_map<int, std::vector<int>>& metadata_points_;
   std::unordered_map<int, std::vector<int>>& small_labels_;
   std::unique_ptr<DataStorageType> data_storage_;
-  std::unique_ptr<std::map<int, std::set<int>>> metadata_storage_;
+  std::unique_ptr<std::unordered_map<int, std::vector<int>>> metadata_storage_;
   std::unique_ptr<std::unordered_map<int, std::vector<int>>> small_labels_store_;
   int_fast32_t num_bits_;
   int_fast64_t n_;
@@ -899,7 +904,7 @@ LSHConstructionParameters get_default_parameters(
 
 template <typename PointType, typename KeyType, typename PointSet>
 std::unique_ptr<LSHNearestNeighborTable<PointType, KeyType>> construct_table(
-    const PointSet& points, const LSHConstructionParameters& params, const std::map<int, std::set<int>>& metadata_storage, std::unordered_map<int, std::vector<int>>& small_labels_store) {
+    const PointSet& points, const LSHConstructionParameters& params, const std::unordered_map<int, std::vector<int>>& metadata_storage, std::unordered_map<int, std::vector<int>>& small_labels_store) {
   wrapper::StaticTableFactory<PointType, KeyType, PointSet> factory(points,
                                                                     params,
                                                                     metadata_storage,

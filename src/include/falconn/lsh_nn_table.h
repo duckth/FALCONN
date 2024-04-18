@@ -479,7 +479,7 @@ class LSHNNTableSetupError : public FalconnError {
 template <typename PointType, typename KeyType = int32_t,
           typename PointSet = std::vector<PointType>>
 std::unique_ptr<LSHNearestNeighborTable<PointType, KeyType>> construct_table(
-    const PointSet& points, const LSHConstructionParameters& params, const std::map<int, std::set<int>>& metadata_storage, const std::unordered_map<int, std::vector<int>>& small_labels_store);
+    const PointSet& points, const LSHConstructionParameters& params, const std::unordered_map<int, std::vector<int>>& metadata_storage, const std::unordered_map<int, std::vector<int>>& small_labels_store);
 
 }  // namespace falconn
 

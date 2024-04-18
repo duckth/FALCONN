@@ -33,7 +33,7 @@ class NearestNeighborQuery {
  public:
   NearestNeighborQuery(LSHTableQuery* table_query,
                        const DataStorage& data_storage,
-                       const std::map<int,std::set<int>>& metadata_storage,
+                       const std::unordered_map<int,std::vector<int>>& metadata_storage,
                        const std::unordered_map<int, std::vector<int>>& small_labels_store
                        )
       : table_query_(table_query), data_storage_(data_storage), metadata_storage_(metadata_storage), small_labels_store_(MetadataStore(small_labels_store)) {}
@@ -69,9 +69,9 @@ class NearestNeighborQuery {
         auto point = iter.get_point();
         int index = iter.get_key();
         bool is_good = true;
-        std::set<int> current_point_metadata = metadata_storage_[index];
+        std::vector<int> current_point_metadata = metadata_storage_[index];
         for (std::set<int>::iterator it=q_filter.begin(); it!=q_filter.end(); ++it) {
-          auto search = current_point_metadata.find(*it);
+          auto search = std::find(current_point_metadata.begin(), current_point_metadata.end(), *it);
           bool found = search != current_point_metadata.end();
           is_good = is_good && found;
         }
@@ -89,7 +89,7 @@ class NearestNeighborQuery {
     }
     int iteration = 0;
 
-    while (best_key == -1 && iteration < 5) {
+    while (best_key == -1 && iteration < 1) {
       iteration += 1;
       table_query_->get_unique_candidates(q, num_probes*iteration, max_num_candidates,
                                           &candidates_);
@@ -114,14 +114,14 @@ class NearestNeighborQuery {
           auto point = iter.get_point();
           int index = iter.get_key();
           bool is_good = true;
-          std::set<int> current_point_metadata = metadata_storage_[index];
+          std::vector<int> current_point_metadata = metadata_storage_[index];
           // printf("Found point: %d\n", index);
           // for (std::set<int>::iterator it=current_point_metadata.begin(); it!=current_point_metadata.end(); ++it) {
           //   printf("%d ", *it);
           // }
           // printf("\n");
           for (std::set<int>::iterator it=q_filter.begin(); it!=q_filter.end(); ++it) {
-            auto search = current_point_metadata.find(*it);
+            auto search = std::find(current_point_metadata.begin(), current_point_metadata.end(), *it);
             bool found = search != current_point_metadata.end();
             is_good = is_good && found;
             // is_good = true;
@@ -310,7 +310,7 @@ class NearestNeighborQuery {
  private:
   LSHTableQuery* table_query_;
   const DataStorage& data_storage_;
-  std::map<int,std::set<int>> metadata_storage_;
+  std::unordered_map<int,std::vector<int>> metadata_storage_;
   MetadataStore small_labels_store_;
   std::vector<LSHTableKeyType> candidates_;
   DistanceFunction dst_;
