@@ -18,6 +18,9 @@ def datapoint_fulfills_constrains(metadata: list[int], filter_metadata: list[int
             return False
     return True
 
+def euclidean_distance(a, b):
+    return np.linalg.norm(a - b)
+
 def filter_dataset(dataset, dataset_metadata, filter_metadata):
     new_dataset = np.ndarray(shape=(0, dataset.shape[1]), dtype=dataset.dtype)
     if filter_metadata.toarray().tobytes() in cache_dict:
@@ -96,9 +99,6 @@ if __name__ == '__main__':
     # assert dataset.dtype == np.float32
 
     # Normalize all the lenghts, since we care about the cosine similarity.
-    print('Normalizing the dataset')
-    dataset /= np.linalg.norm(dataset, axis=1).reshape(-1, 1)
-    print('Done')
 
     # Choose random data points to be queries.
     # print('Generating queries')
@@ -135,15 +135,23 @@ if __name__ == '__main__':
     t1 = timeit.default_timer()
     answers = []
     for i in range(len(queries)):
+        best_dist = -1
+        best_idx = -1
         # breakpoint()
         if i % 10 == 0:
             print('Processing query {}'.format(i))
-        similar_sort = np.dot(dataset, queries[i]).argsort()
-        for index in similar_sort[::-1]:
-            if datapoint_fulfills_constrains(dataset_metadata[index].toarray()[0], queries_metadata[i]):
-                answers.append(index)
-                break
-    # breakpoint()
+        query = queries[i]
+        for point in dataset:
+            if datapoint_fulfills_constrains(dataset_metadata[i].toarray()[0], queries_metadata[i]):
+                if best_dist == -1 or euclidean_distance(query, point) < best_dist:
+                    best_dist = euclidean_distance(query, point)
+                    best_idx = i
+        answers.append(best_idx)
+    with open('./answers.py') as f:f.write(repr(answers))
+
+    print('Normalizing the dataset')
+    dataset /= np.linalg.norm(dataset, axis=1).reshape(-1, 1)
+    print('Done')
 
     t2 = timeit.default_timer()
     print('Done')
