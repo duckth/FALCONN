@@ -2,7 +2,7 @@ from __future__ import print_function
 from functools import lru_cache
 from scipy.sparse import csr_matrix
 import numpy as np
-import falconn
+# import falconn
 import timeit
 import math
 import pdb
@@ -141,118 +141,123 @@ if __name__ == '__main__':
         if i % 10 == 0:
             print('Processing query {}'.format(i))
         query = queries[i]
-        for point in dataset:
-            if datapoint_fulfills_constrains(dataset_metadata[i].toarray()[0], queries_metadata[i]):
-                if best_dist == -1 or euclidean_distance(query, point) < best_dist:
-                    best_dist = euclidean_distance(query, point)
-                    best_idx = i
+        start,end = (0, 50000) if i >= 500 else (50000, 100000)
+        # print(datapoint_fulfills_constrains(dataset_metadata[start].toarray()[0], queries_metadata[i]))
+        for point_idx in range(start,end):
+            # if j % 10000 == 0:
+            #     print('Processing point {}'.format(j))
+            if datapoint_fulfills_constrains(dataset_metadata[point_idx].toarray()[0], queries_metadata[i]):
+                if best_dist == -1 or euclidean_distance(query, dataset[point_idx]) < best_dist:
+                    best_dist = euclidean_distance(query, dataset[point_idx])
+                    best_idx = point_idx
         answers.append(best_idx)
-    with open('./answers.py') as f:f.write(repr(answers))
+        print('Best idx: {}, Best dist: {}'.format(best_idx, best_dist))
+    with open('./answers.py', 'w') as f:f.write(repr(answers))
 
-    print('Normalizing the dataset')
-    dataset /= np.linalg.norm(dataset, axis=1).reshape(-1, 1)
-    print('Done')
+    # print('Normalizing the dataset')
+    # dataset /= np.linalg.norm(dataset, axis=1).reshape(-1, 1)
+    # print('Done')
 
-    t2 = timeit.default_timer()
-    print('Done')
-    print('Linear scan time: {} per query'.format((t2 - t1) / float(
-        len(queries))))
+    # t2 = timeit.default_timer()
+    # print('Done')
+    # print('Linear scan time: {} per query'.format((t2 - t1) / float(
+    #     len(queries))))
 
-    # Center the dataset and the queries: this improves the performance of LSH quite a bit.
-    print('Centering the dataset and queries')
-    center = np.mean(dataset, axis=0)
-    dataset -= center
-    queries -= center
-    print('Done')
+    # # Center the dataset and the queries: this improves the performance of LSH quite a bit.
+    # print('Centering the dataset and queries')
+    # center = np.mean(dataset, axis=0)
+    # dataset -= center
+    # queries -= center
+    # print('Done')
 
-    params_cp = falconn.LSHConstructionParameters()
-    params_cp.dimension = len(dataset[0])
-    params_cp.lsh_family = falconn.LSHFamily.CrossPolytope
-    params_cp.distance_function = falconn.DistanceFunction.EuclideanSquared
-    params_cp.l = number_of_tables
-    # we set one rotation, since the data is dense enough,
-    # for sparse data set it to 2
-    params_cp.num_rotations = 1
-    params_cp.seed = 5721840
-    # we want to use all the available threads to set up
-    params_cp.num_setup_threads = 0
-    params_cp.storage_hash_table = falconn.StorageHashTable.BitPackedFlatHashTable
-    # we build 18-bit hashes so that each table has
-    # 2^18 bins; this is a good choise since 2^18 is of the same
-    # order of magnitude as the number of data points
-    falconn.compute_number_of_hash_functions(18, params_cp)
+    # params_cp = falconn.LSHConstructionParameters()
+    # params_cp.dimension = len(dataset[0])
+    # params_cp.lsh_family = falconn.LSHFamily.CrossPolytope
+    # params_cp.distance_function = falconn.DistanceFunction.EuclideanSquared
+    # params_cp.l = number_of_tables
+    # # we set one rotation, since the data is dense enough,
+    # # for sparse data set it to 2
+    # params_cp.num_rotations = 1
+    # params_cp.seed = 5721840
+    # # we want to use all the available threads to set up
+    # params_cp.num_setup_threads = 0
+    # params_cp.storage_hash_table = falconn.StorageHashTable.BitPackedFlatHashTable
+    # # we build 18-bit hashes so that each table has
+    # # 2^18 bins; this is a good choise since 2^18 is of the same
+    # # order of magnitude as the number of data points
+    # falconn.compute_number_of_hash_functions(18, params_cp)
 
-    print('Constructing the LSH table')
-    t1 = timeit.default_timer()
-    table = falconn.LSHIndex(params_cp)
-    table.setup(dataset, mydic)
-    t2 = timeit.default_timer()
-    print('Done')
-    print('Construction time: {}'.format(t2 - t1))
+    # print('Constructing the LSH table')
+    # t1 = timeit.default_timer()
+    # table = falconn.LSHIndex(params_cp)
+    # table.setup(dataset, mydic)
+    # t2 = timeit.default_timer()
+    # print('Done')
+    # print('Construction time: {}'.format(t2 - t1))
 
-    query_object = table.construct_query_object()
+    # query_object = table.construct_query_object()
 
-    # find the smallest number of probes to achieve accuracy 0.9
-    # using the binary search
-    print('Choosing number of probes')
-    number_of_probes = number_of_tables
+    # # find the smallest number of probes to achieve accuracy 0.9
+    # # using the binary search
+    # print('Choosing number of probes')
+    # number_of_probes = number_of_tables
 
-    def evaluate_number_of_probes(number_of_probes):
-        query_object.set_num_probes(number_of_probes)
-        score = 0
-        for (i, query) in enumerate(queries):
-            if answers[i] in query_object.get_candidates_with_duplicates(
-                    query):
-                score += 1
-        return float(score) / len(queries)
+    # def evaluate_number_of_probes(number_of_probes):
+    #     query_object.set_num_probes(number_of_probes)
+    #     score = 0
+    #     for (i, query) in enumerate(queries):
+    #         if answers[i] in query_object.get_candidates_with_duplicates(
+    #                 query):
+    #             score += 1
+    #     return float(score) / len(queries)
 
-    while use_compute_probes:
-        accuracy = evaluate_number_of_probes(number_of_probes)
-        print('{} -> {}'.format(number_of_probes, accuracy))
-        if accuracy >= 0.9:
-            break
-        number_of_probes = number_of_probes * 2
-    if number_of_probes > number_of_tables:
-        left = number_of_probes // 2
-        right = number_of_probes
-        while right - left > 1:
-            number_of_probes = (left + right) // 2
-            accuracy = evaluate_number_of_probes(number_of_probes)
-            print('{} -> {}'.format(number_of_probes, accuracy))
-            if accuracy >= 0.9:
-                right = number_of_probes
-            else:
-                left = number_of_probes
-        number_of_probes = right
+    # while use_compute_probes:
+    #     accuracy = evaluate_number_of_probes(number_of_probes)
+    #     print('{} -> {}'.format(number_of_probes, accuracy))
+    #     if accuracy >= 0.9:
+    #         break
+    #     number_of_probes = number_of_probes * 2
+    # if number_of_probes > number_of_tables:
+    #     left = number_of_probes // 2
+    #     right = number_of_probes
+    #     while right - left > 1:
+    #         number_of_probes = (left + right) // 2
+    #         accuracy = evaluate_number_of_probes(number_of_probes)
+    #         print('{} -> {}'.format(number_of_probes, accuracy))
+    #         if accuracy >= 0.9:
+    #             right = number_of_probes
+    #         else:
+    #             left = number_of_probes
+    #     number_of_probes = right
 
-    query_object.set_num_probes(number_of_probes)
-    print('Done')
-    print('{} probes'.format(number_of_probes))
+    # query_object.set_num_probes(number_of_probes)
+    # print('Done')
+    # print('{} probes'.format(number_of_probes))
 
-    # final evaluation
-    t1 = timeit.default_timer()
-    score = 0
-    res = 0
-    right = 0
-    for (i, query) in enumerate(queries):
-        res = query_object.find_nearest_neighbor(query, queries_metadata[i].indices)
-        real_point = None
-        # for result in res:
-            # breakpoint()
-            # if datapoint_fulfills_constrains(dataset_metadata[result].toarray()[0], queries_metadata[i]):
-                # real_point = result
-                # break
-        if (i % 100 == 0):
-            print('Processing query {}'.format(i))
-        # breakpoint()
-        # print('Res object: {}, answer: {}'.format(res, answers[i]))
-        # print('Fulfills constraints: {}'.format(datapoint_fulfills_constrains(dataset_metadata[res].toarray()[0], queries_metadata[i])))
-        if datapoint_fulfills_constrains(dataset_metadata[res].toarray()[0], queries_metadata[i]):
-            right += 1
-        if res == answers[i]: # find_k_nearest_neighbors allows us to find multiple and not just one nearest neighbor
-            score += 1
-    t2 = timeit.default_timer()
+    # # final evaluation
+    # t1 = timeit.default_timer()
+    # score = 0
+    # res = 0
+    # right = 0
+    # for (i, query) in enumerate(queries):
+    #     res = query_object.find_nearest_neighbor(query, queries_metadata[i].indices)
+    #     real_point = None
+    #     # for result in res:
+    #         # breakpoint()
+    #         # if datapoint_fulfills_constrains(dataset_metadata[result].toarray()[0], queries_metadata[i]):
+    #             # real_point = result
+    #             # break
+    #     if (i % 100 == 0):
+    #         print('Processing query {}'.format(i))
+    #     # breakpoint()
+    #     # print('Res object: {}, answer: {}'.format(res, answers[i]))
+    #     # print('Fulfills constraints: {}'.format(datapoint_fulfills_constrains(dataset_metadata[res].toarray()[0], queries_metadata[i])))
+    #     if datapoint_fulfills_constrains(dataset_metadata[res].toarray()[0], queries_metadata[i]):
+    #         right += 1
+    #     if res == answers[i]: # find_k_nearest_neighbors allows us to find multiple and not just one nearest neighbor
+    #         score += 1
+    # t2 = timeit.default_timer()
 
-    print('Query time: {}'.format((t2 - t1) / len(queries)))
-    print('Precision: {}'.format(float(score) / len(queries)))
-    print('Right: {}'.format(float(right) / len(queries)))
+    # print('Query time: {}'.format((t2 - t1) / len(queries)))
+    # print('Precision: {}'.format(float(score) / len(queries)))
+    # print('Right: {}'.format(float(right) / len(queries)))
