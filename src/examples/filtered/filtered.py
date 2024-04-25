@@ -177,7 +177,7 @@ if __name__ == '__main__':
     print('Constructing the LSH table')
     t1 = timeit.default_timer()
     table = falconn.LSHIndex(params_cp)
-    table.setup(dataset, mydic)
+    table.setup(dataset, mydic, {})
     t2 = timeit.default_timer()
     print('Done')
     print('Construction time: {}'.format(t2 - t1))

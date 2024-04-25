@@ -59,7 +59,7 @@ class NearestNeighborQuery {
       }
     }
 
-    printf("small label: %d\n", smallest_label);
+    // printf("small label: %d\n", smallest_label);
     if(smallest_label != -1)
     {
       std::vector<int> indices = small_labels_store_.get_indices_for_label(smallest_label);
@@ -130,7 +130,7 @@ class NearestNeighborQuery {
           }
           if(is_good) {
             DistanceType cur_distance = dst_(q_comp, point);
-            printf("%d %f\n", iter.get_key(), cur_distance);
+            // printf("%d %f\n", iter.get_key(), cur_distance);
             if (cur_distance < best_distance || no_distance_found) {
 
               best_distance = cur_distance;
