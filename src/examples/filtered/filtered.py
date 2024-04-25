@@ -6,6 +6,7 @@ import numpy as np
 import timeit
 import math
 import pdb
+import matplotlib.pyplot as plt
 from collections import defaultdict
 
 cache_dict = {}
@@ -78,21 +79,46 @@ def read_sparse_matrix(fname, do_mmap=False):
 
 
 if __name__ == '__main__':
-    dataset_file = './dataset/data_100000_50'
-    dataset_metadata_file = './dataset/data_metadata_100000_50'
+    dataset_file = './dataset/random_filter_yfcc'
+    # dataset_metadata_file = './dataset/data_metadata_100000_50'
     # we build only 50 tables, increasing this quantity will improve the query time
     # at a cost of slower preprocessing and larger memory footprint, feel free to
     # play with this number
-    number_of_tables = 10
+    # number_of_tables = 10
 
     print('Reading the dataset')
 
-    dtype = "float32"
+    dtype = "uint8"
     n, d = map(int, np.fromfile(dataset_file, dtype="uint32", count=2))
 
-    dataset = np.memmap(dataset_file, dtype=dtype, mode="r+", offset=8, shape=(n, d))
-    dataset_metadata = read_sparse_matrix(dataset_metadata_file, do_mmap=True)
+    dataset = np.memmap(dataset_file, dtype=dtype, mode="r", offset=8, shape=(n, d))
+    # dataset_metadata = read_sparse_matrix(dataset_metadata_file, do_mmap=True)
     print('Done')
+    print('Calculating length of each vector')
+    lengths = []
+    for point in dataset:
+        lengths.append(np.linalg.norm(point))
+    # plt.style.use('_mpl-gallery')
+
+    print(f'Done. Points: {len(lengths)}')
+    print(f'Min: {min(lengths)}')
+    print(f'Max: {max(lengths)}')
+    
+    # plot:
+    fig, ax = plt.subplots()
+
+    vp = ax.violinplot(lengths, [2], widths=2,
+                    showmeans=False, showmedians=False, showextrema=False)
+    # styling:
+    for body in vp['bodies']:
+        body.set_alpha(0.9)
+    ax.set(xlim=(0, 4), xticks=np.arange(0, 4),
+        ylim=(750, 1550), yticks=np.arange(750, 1550, 100))
+
+    plt.savefig('mygraph.png')
+    # plt.show()
+
+    exit(0)
 
     # It's important not to use doubles, unless they are strictly necessary.
     # If your dataset consists of doubles, convert it to floats using `astype`.
@@ -110,24 +136,24 @@ if __name__ == '__main__':
     #
 
     # Fetch queries from file
-    queries_file = './dataset/queries_1000_50'
-    queries_metadata_file = './dataset/queries_metadata_100000_50'
+    # queries_file = './dataset/queries_1000_50'
+    # queries_metadata_file = './dataset/queries_metadata_100000_50'
 
-    print('Reading queries')
-    dtype = "float32"
-    n, d = map(int, np.fromfile(queries_file, dtype="uint32", count=2))
+    # print('Reading queries')
+    # dtype = "float32"
+    # n, d = map(int, np.fromfile(queries_file, dtype="uint32", count=2))
 
-    queries = np.memmap(queries_file, dtype=dtype, mode="r+", offset=8, shape=(n, d))
+    # queries = np.memmap(queries_file, dtype=dtype, mode="r+", offset=8, shape=(n, d))
 
-    queries_metadata = read_sparse_matrix(queries_metadata_file, do_mmap=True)
-    mydic = defaultdict(lambda: set())
+    # queries_metadata = read_sparse_matrix(queries_metadata_file, do_mmap=True)
+    # mydic = defaultdict(lambda: set())
     # breakpoint()
     # metadata = dict(dataset_metadata.tolil().items())
 
-    for idx, el in dict(dataset_metadata.todok().items()).keys():
-        mydic[idx].add(el)
+    # for idx, el in dict(dataset_metadata.todok().items()).keys():
+    #     mydic[idx].add(el)
 
-    print('Done')
+    # print('Done')
 
 
     # Perform linear scan using NumPy to get answers to the queries.
