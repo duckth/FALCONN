@@ -113,7 +113,7 @@ class HashObjectQuery {
     HashType cur_probe;
     bool stop = false;
 
-    for (int_fast8_t its = 0; its<iterations; ++its) {
+    for (int_fast8_t its = 0; its<iterations*num_probes; ++its) {
       if (!multiprobe_.get_next_probe(&cur_probe, &cur_table)) {
         stop = true;
         break;
