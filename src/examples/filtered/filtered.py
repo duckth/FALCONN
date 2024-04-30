@@ -7,6 +7,7 @@ import timeit
 import math
 import pdb
 import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
 from collections import defaultdict
 
 cache_dict = {}
@@ -77,45 +78,78 @@ def read_sparse_matrix(fname, do_mmap=False):
 
     return csr_matrix((data, indices, indptr), shape=(len(indptr) - 1, ncol))
 
+def round(val, base, down):
+    if down:
+        return val - val % base
+    return val - val % base + base
+
+def set_axis_style(ax, labels):
+    ax.set_xticks(np.arange(1, len(labels) + 1), labels)
+    ax.set_xlim(0.25, len(labels) + 0.75)
 
 if __name__ == '__main__':
-    dataset_file = './dataset/random_filter_yfcc'
+    generated_data = './dataset/random_filter_yfcc'
+    yfcc_data = './dataset/base.10M.u8bin.crop_nb_10000000'
     # dataset_metadata_file = './dataset/data_metadata_100000_50'
     # we build only 50 tables, increasing this quantity will improve the query time
     # at a cost of slower preprocessing and larger memory footprint, feel free to
     # play with this number
     # number_of_tables = 10
 
-    print('Reading the dataset')
+    print('Reading the datasets')
 
     dtype = "uint8"
-    n, d = map(int, np.fromfile(dataset_file, dtype="uint32", count=2))
 
-    dataset = np.memmap(dataset_file, dtype=dtype, mode="r", offset=8, shape=(n, d))
+    n1, d1 = map(int, np.fromfile(generated_data, dtype="uint32", count=2))
+    dataset_generated = np.memmap(generated_data, dtype=dtype, mode="r", offset=8, shape=(n1, d1))
+    n2, d2 = map(int, np.fromfile(yfcc_data, dtype="uint32", count=2))
+    dataset_yfcc = np.memmap(yfcc_data, dtype=dtype, mode="r", offset=8, shape=(n2, d2))
+    
     # dataset_metadata = read_sparse_matrix(dataset_metadata_file, do_mmap=True)
     print('Done')
     print('Calculating length of each vector')
-    lengths = []
-    for point in dataset:
-        lengths.append(np.linalg.norm(point))
+    lengths = [[], []]
+    for point in dataset_generated:
+        lengths[0].append(np.linalg.norm(point))
+    for point in dataset_yfcc:
+        lengths[1].append(np.linalg.norm(point))
     # plt.style.use('_mpl-gallery')
 
-    print(f'Done. Points: {len(lengths)}')
-    print(f'Min: {min(lengths)}')
-    print(f'Max: {max(lengths)}')
+    minval = min(min(lengths[0], lengths[1]))
+    maxval = max(max(lengths[0], lengths[1]))
+    
+    # print(f'Done. Points: {len(lengths)}')
+    print(f'Min: {minval}')
+    print(f'Max: {maxval}')
+    
     
     # plot:
     fig, ax = plt.subplots()
 
-    vp = ax.violinplot(lengths, [2], widths=2,
+    vp = ax.violinplot(lengths,
                     showmeans=False, showmedians=False, showextrema=False)
-    # styling:
+    ax.set_ylabel('Euclidean length of vectors')
+    ax.set_title('Dataset vector lengths')
+    # styling: 
     for body in vp['bodies']:
         body.set_alpha(0.9)
-    ax.set(xlim=(0, 4), xticks=np.arange(0, 4),
-        ylim=(750, 1550), yticks=np.arange(750, 1550, 100))
+    base = 50 if maxval - minval <= 250 else 100
+    mintick = round(minval, base, True)
+    maxtick = round(maxval, base, False)
+    print("base, min and max: ", base, mintick, maxtick)
+    ax.set(
+#        xlim=(0,2),
+#        xticks=np.array(['Generated dataset', 'YFCC-10M']),
+        ylim=(mintick, maxtick),
+        yticks=np.arange(mintick, maxtick+base, base))
+    
+    plt.xticks(np.arange(1,3), labels=['Generated dataset', 'YFCC-10M'])
+    # ax.set_xticks(np.arange(1,3), labels=['Generated dataset', 'YFCC-10M'])
+    
+    # set_axis_style(ax, ['Generated dataset', 'YFCC-10M'])
 
-    plt.savefig('mygraph.png')
+    # plt.xticks([])
+    plt.savefig('my_generated_graph.png')
     # plt.show()
 
     exit(0)
