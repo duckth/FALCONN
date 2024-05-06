@@ -403,10 +403,10 @@ class LSHNNQueryPool : public LSHNearestNeighborQueryPool<PointType, KeyType> {
     }
   }
 
-  KeyType find_nearest_neighbor(const PointType& q, std::set<int> filters) {
+  KeyType find_nearest_neighbor(const PointType& q, std::set<int> filters, int_fast64_t max_iterations) {
     int_fast32_t query_index = get_query_index_and_lock();
     KeyType res = internal_nn_queries_[query_index]->find_nearest_neighbor(
-        q, q, filters, num_probes_, max_num_candidates_);
+        q, q, filters, num_probes_, max_num_candidates_, max_iterations);
     unlock_query(query_index);
     return res;
   }
