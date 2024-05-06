@@ -305,9 +305,9 @@ class LSHNNQueryWrapper : public LSHNearestNeighborQuery<PointType, KeyType> {
         new NNQueryType(internal_query_.get(), data_storage, metadata_storage, small_labels_store));
   }
 
-  KeyType find_nearest_neighbor(const PointType& q, std::set<int> filters) {
+  KeyType find_nearest_neighbor(const PointType& q, std::set<int> filters, int_fast64_t max_iterations) {
     return internal_nn_query_->find_nearest_neighbor(q, q, filters, num_probes_,
-                                                     max_num_candidates_);
+                                                     max_num_candidates_, max_iterations);
   }
 
   void find_k_nearest_neighbors(const PointType& q, int_fast64_t k,

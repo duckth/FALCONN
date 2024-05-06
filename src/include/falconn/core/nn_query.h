@@ -42,7 +42,8 @@ class NearestNeighborQuery {
                                         const ComparisonPointType& q_comp,
                                         const std::set<int>& q_filter,
                                         int_fast64_t num_probes,
-                                        int_fast64_t max_num_candidates) {
+                                        int_fast64_t max_num_candidates,
+                                        int_fast64_t max_iterations) {
     auto start_time = std::chrono::high_resolution_clock::now();
     // printf("HELLO WHAT");
 
@@ -90,7 +91,7 @@ class NearestNeighborQuery {
 
     }
     int iteration = 0;
-    while (best_key == -1 && iteration < 5) {
+    while (best_key == -1 && iteration < max_iterations) {
       // printf("Start iteration %d\n", iteration);
       table_query_->get_unique_candidates(q, num_probes, max_num_candidates,
                                           &candidates_, iteration);

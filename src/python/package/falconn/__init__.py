@@ -137,7 +137,7 @@ class Queryable:
                              format(threshold))
         return self._inner_entity.find_near_neighbors(query, threshold)
 
-    def find_nearest_neighbor(self, query, query_filters):
+    def find_nearest_neighbor(self, query, query_filters, max_iterations):
         """Find the key of the closest candidate.
 
         Finds the key of the closest candidate in the probing sequence
@@ -150,7 +150,7 @@ class Queryable:
         the second dimension of the dataset.
         """
         self._check_query(query)
-        return self._inner_entity.find_nearest_neighbor(query, query_filters)
+        return self._inner_entity.find_nearest_neighbor(query, query_filters, max_iterations)
 
     def get_candidates_with_duplicates(self, query):
         """Retrieve all the candidates for a given query.
