@@ -96,7 +96,8 @@ class LSHNearestNeighborQuery {
   /// appear in the probing sequence.
   ///
   virtual void get_candidates_with_duplicates(const PointType& q,
-                                              std::vector<KeyType>* result) = 0;
+                                              std::vector<KeyType>* result,
+                                              int_fast8_t iterations) = 0;
 
   ///
   /// Resets the query statistics.
@@ -179,7 +180,8 @@ class LSHNearestNeighborQueryPool {
   /// See the documentation for LSHNearestNeighborQuery.
   ///
   virtual void get_candidates_with_duplicates(const PointType& q,
-                                              std::vector<KeyType>* result) = 0;
+                                              std::vector<KeyType>* result,
+                                              int_fast8_t iterations) = 0;
 
   ///
   /// Resets the query statistics.

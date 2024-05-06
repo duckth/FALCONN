@@ -128,11 +128,11 @@ class PyLSHNearestNeighborQueryDenseFloat {
     return result;
   }
 
-  std::vector<int32_t> get_candidates_with_duplicates(OuterNumPyArray q) {
+  std::vector<int32_t> get_candidates_with_duplicates(OuterNumPyArray q, int_fast8_t iterations) {
     InnerEigenMap converted_query = numpy_to_eigen(q);
     py::gil_scoped_release release;
     std::vector<int32_t> result;
-    inner_entity_->get_candidates_with_duplicates(converted_query, &result);
+    inner_entity_->get_candidates_with_duplicates(converted_query, &result, iterations);
     return result;
   }
 
@@ -210,11 +210,11 @@ class PyLSHNearestNeighborQueryPoolDenseFloat {
     return result;
   }
 
-  std::vector<int32_t> get_candidates_with_duplicates(OuterNumPyArray q) {
+  std::vector<int32_t> get_candidates_with_duplicates(OuterNumPyArray q, int_fast8_t iterations) {
     InnerEigenMap converted_query = numpy_to_eigen(q);
     py::gil_scoped_release release;
     std::vector<int32_t> result;
-    inner_entity_->get_candidates_with_duplicates(converted_query, &result);
+    inner_entity_->get_candidates_with_duplicates(converted_query, &result, iterations);
     return result;
   }
 
@@ -349,11 +349,11 @@ class PyLSHNearestNeighborQueryDenseDouble {
     return result;
   }
 
-  std::vector<int32_t> get_candidates_with_duplicates(OuterNumPyArray q) {
+  std::vector<int32_t> get_candidates_with_duplicates(OuterNumPyArray q, int_fast8_t iterations) {
     InnerEigenMap converted_query = numpy_to_eigen(q);
     py::gil_scoped_release release;
     std::vector<int32_t> result;
-    inner_entity_->get_candidates_with_duplicates(converted_query, &result);
+    inner_entity_->get_candidates_with_duplicates(converted_query, &result, iterations);
     return result;
   }
 
@@ -431,11 +431,11 @@ class PyLSHNearestNeighborQueryPoolDenseDouble {
     return result;
   }
 
-  std::vector<int32_t> get_candidates_with_duplicates(OuterNumPyArray q) {
+  std::vector<int32_t> get_candidates_with_duplicates(OuterNumPyArray q, int_fast8_t iterations) {
     InnerEigenMap converted_query = numpy_to_eigen(q);
     py::gil_scoped_release release;
     std::vector<int32_t> result;
-    inner_entity_->get_candidates_with_duplicates(converted_query, &result);
+    inner_entity_->get_candidates_with_duplicates(converted_query, &result, iterations);
     return result;
   }
 

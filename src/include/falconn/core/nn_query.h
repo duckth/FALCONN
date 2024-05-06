@@ -264,11 +264,12 @@ class NearestNeighborQuery {
   void get_candidates_with_duplicates(const LSHTablePointType& q,
                                       int_fast64_t num_probes,
                                       int_fast64_t max_num_candidates,
-                                      std::vector<LSHTableKeyType>* result) {
+                                      std::vector<LSHTableKeyType>* result,
+                                      int_fast8_t iterations) {
     auto start_time = std::chrono::high_resolution_clock::now();
 
     table_query_->get_candidates_with_duplicates(q, num_probes,
-                                                 max_num_candidates, result);
+                                                 max_num_candidates, result, iterations);
 
     auto end_time = std::chrono::high_resolution_clock::now();
     auto elapsed_total =

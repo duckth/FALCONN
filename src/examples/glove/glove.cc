@@ -178,7 +178,7 @@ double evaluate_num_probes(LSHNearestNeighborTable<Point> *table,
   int num_matches = 0;
   vector<int32_t> candidates;
   for (const auto &query : queries) {
-    query_object->get_candidates_with_duplicates(query, &candidates);
+    query_object->get_candidates_with_duplicates(query, &candidates, 0);
     for (auto x : candidates) {
       if (x == answers[outer_counter]) {
         ++num_matches;

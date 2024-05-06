@@ -93,7 +93,7 @@ class HashObjectQuery {
   void get_probes_by_table(const VectorType& point,
                            std::vector<std::vector<HashType>>* probes,
                            int_fast64_t num_probes,
-                           int_fast8_t iterations = 0) {
+                           int_fast8_t iterations) {
     if (num_probes < parent_.l_) {
       throw LSHFunctionError(
           "Number of probes must be at least "
