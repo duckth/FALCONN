@@ -113,17 +113,16 @@ class HashObjectQuery {
     HashType cur_probe;
     bool stop = false;
 
-    /* for (int_fast8_t its = 0; its<iterations*num_probes; ++its) { */
-    /*   if (!multiprobe_.get_next_probe(&cur_probe, &cur_table)) { */
-    /*     stop = true; */
-    /*     printf("stopping multiprobe at iteration %d\n", its) */
-    /*     break; */
-    /*   } */
-    /* } */
-    /**/
-    /* if (stop) { */
-    /*   return; */
-    /* } */
+    for (int_fast8_t its = 0; its<iterations*num_probes; ++its) {
+      if (!multiprobe_.get_next_probe(&cur_probe, &cur_table)) {
+        stop = true;
+        break;
+      }
+    }
+
+    if (stop) {
+      return;
+    }
     for (int_fast64_t ii = 0; ii < num_probes; ++ii) {
       if (!multiprobe_.get_next_probe(&cur_probe, &cur_table)) {
         break;
