@@ -107,7 +107,7 @@ class HashObjectQuery {
     }
 
     hash_transformation_.apply(point, &transformed_vector_);
-    multiprobe_.setup_probing(transformed_vector_, num_probes);
+    multiprobe_.setup_probing(transformed_vector_, num_probes * (iterations+1));
 
     int_fast32_t cur_table;
     HashType cur_probe;
