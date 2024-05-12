@@ -94,12 +94,12 @@ class PyLSHNearestNeighborQueryDenseFloat {
     return inner_entity_->get_max_num_candidates();
   }
 
-  int32_t find_nearest_neighbor(OuterNumPyArray q, const std::vector<int> &q_filters) {
+  int32_t find_nearest_neighbor(OuterNumPyArray q, const std::vector<int> &q_filters, int_fast64_t max_iterations) {
     InnerEigenMap converted_query = numpy_to_eigen(q);
     std::set<int> converted_query_filters(q_filters.begin(), q_filters.end());
 
     py::gil_scoped_release release;
-    return inner_entity_->find_nearest_neighbor(converted_query, converted_query_filters);
+    return inner_entity_->find_nearest_neighbor(converted_query, converted_query_filters, max_iterations);
   }
 
   std::vector<int32_t> find_k_nearest_neighbors(OuterNumPyArray q,
@@ -128,11 +128,11 @@ class PyLSHNearestNeighborQueryDenseFloat {
     return result;
   }
 
-  std::vector<int32_t> get_candidates_with_duplicates(OuterNumPyArray q) {
+  std::vector<int32_t> get_candidates_with_duplicates(OuterNumPyArray q, int_fast8_t iterations) {
     InnerEigenMap converted_query = numpy_to_eigen(q);
     py::gil_scoped_release release;
     std::vector<int32_t> result;
-    inner_entity_->get_candidates_with_duplicates(converted_query, &result);
+    inner_entity_->get_candidates_with_duplicates(converted_query, &result, iterations);
     return result;
   }
 
@@ -176,12 +176,12 @@ class PyLSHNearestNeighborQueryPoolDenseFloat {
     return inner_entity_->get_max_num_candidates();
   }
 
-  int32_t find_nearest_neighbor(OuterNumPyArray q, const std::vector<int> &q_filters) {
+  int32_t find_nearest_neighbor(OuterNumPyArray q, const std::vector<int> &q_filters, int_fast64_t max_iterations) {
     InnerEigenMap converted_query = numpy_to_eigen(q);
     std::set<int> converted_query_filters(q_filters.begin(), q_filters.end());
 
     py::gil_scoped_release release;
-    return inner_entity_->find_nearest_neighbor(converted_query, converted_query_filters);
+    return inner_entity_->find_nearest_neighbor(converted_query, converted_query_filters, max_iterations);
   }
 
   std::vector<int32_t> find_k_nearest_neighbors(OuterNumPyArray q,
@@ -210,11 +210,11 @@ class PyLSHNearestNeighborQueryPoolDenseFloat {
     return result;
   }
 
-  std::vector<int32_t> get_candidates_with_duplicates(OuterNumPyArray q) {
+  std::vector<int32_t> get_candidates_with_duplicates(OuterNumPyArray q, int_fast8_t iterations) {
     InnerEigenMap converted_query = numpy_to_eigen(q);
     py::gil_scoped_release release;
     std::vector<int32_t> result;
-    inner_entity_->get_candidates_with_duplicates(converted_query, &result);
+    inner_entity_->get_candidates_with_duplicates(converted_query, &result, iterations);
     return result;
   }
 
@@ -315,12 +315,12 @@ class PyLSHNearestNeighborQueryDenseDouble {
     return inner_entity_->get_max_num_candidates();
   }
 
-  int32_t find_nearest_neighbor(OuterNumPyArray q, const std::vector<int> &q_filters) {
+  int32_t find_nearest_neighbor(OuterNumPyArray q, const std::vector<int> &q_filters, int_fast64_t max_iterations) {
     InnerEigenMap converted_query = numpy_to_eigen(q);
     std::set<int> converted_query_filters(q_filters.begin(), q_filters.end());
 
     py::gil_scoped_release release;
-    return inner_entity_->find_nearest_neighbor(converted_query, converted_query_filters);
+    return inner_entity_->find_nearest_neighbor(converted_query, converted_query_filters, max_iterations);
   }
 
   std::vector<int32_t> find_k_nearest_neighbors(OuterNumPyArray q,
@@ -349,11 +349,11 @@ class PyLSHNearestNeighborQueryDenseDouble {
     return result;
   }
 
-  std::vector<int32_t> get_candidates_with_duplicates(OuterNumPyArray q) {
+  std::vector<int32_t> get_candidates_with_duplicates(OuterNumPyArray q, int_fast8_t iterations) {
     InnerEigenMap converted_query = numpy_to_eigen(q);
     py::gil_scoped_release release;
     std::vector<int32_t> result;
-    inner_entity_->get_candidates_with_duplicates(converted_query, &result);
+    inner_entity_->get_candidates_with_duplicates(converted_query, &result, iterations);
     return result;
   }
 
@@ -397,12 +397,12 @@ class PyLSHNearestNeighborQueryPoolDenseDouble {
     return inner_entity_->get_max_num_candidates();
   }
 
-  int32_t find_nearest_neighbor(OuterNumPyArray q, const std::vector<int> &q_filters) {
+  int32_t find_nearest_neighbor(OuterNumPyArray q, const std::vector<int> &q_filters, int_fast64_t max_iterations) {
     InnerEigenMap converted_query = numpy_to_eigen(q);
     std::set<int> converted_query_filters(q_filters.begin(), q_filters.end());
 
     py::gil_scoped_release release;
-    return inner_entity_->find_nearest_neighbor(converted_query, converted_query_filters);
+    return inner_entity_->find_nearest_neighbor(converted_query, converted_query_filters, max_iterations);
   }
 
   std::vector<int32_t> find_k_nearest_neighbors(OuterNumPyArray q,
@@ -431,11 +431,11 @@ class PyLSHNearestNeighborQueryPoolDenseDouble {
     return result;
   }
 
-  std::vector<int32_t> get_candidates_with_duplicates(OuterNumPyArray q) {
+  std::vector<int32_t> get_candidates_with_duplicates(OuterNumPyArray q, int_fast8_t iterations) {
     InnerEigenMap converted_query = numpy_to_eigen(q);
     py::gil_scoped_release release;
     std::vector<int32_t> result;
-    inner_entity_->get_candidates_with_duplicates(converted_query, &result);
+    inner_entity_->get_candidates_with_duplicates(converted_query, &result, iterations);
     return result;
   }
 

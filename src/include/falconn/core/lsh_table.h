@@ -126,7 +126,8 @@ class StaticLSHTable
     void get_candidates_with_duplicates(const PointType& p,
                                         int_fast64_t num_probes,
                                         int_fast64_t max_num_candidates,
-                                        std::vector<KeyType>* result) {
+                                        std::vector<KeyType>* result,
+                                        int_fast8_t iterations) {
       if (result == nullptr) {
         throw LSHTableError("Results vector pointer is nullptr.");
       }
@@ -134,7 +135,7 @@ class StaticLSHTable
       auto start_time = std::chrono::high_resolution_clock::now();
       stats_.num_queries += 1;
 
-      lsh_query_.get_probes_by_table(p, &tmp_probes_by_table_, num_probes);
+      lsh_query_.get_probes_by_table(p, &tmp_probes_by_table_, num_probes, iterations);
 
       auto lsh_end_time = std::chrono::high_resolution_clock::now();
       auto elapsed_lsh =
@@ -180,7 +181,8 @@ class StaticLSHTable
 
     void get_unique_candidates(const PointType& p, int_fast64_t num_probes,
                                int_fast64_t max_num_candidates,
-                               std::vector<KeyType>* result) {
+                               std::vector<KeyType>* result,
+                               int_fast8_t iterations = 0) {
       if (result == nullptr) {
         throw LSHTableError("Results vector pointer is nullptr.");
       }
@@ -188,7 +190,7 @@ class StaticLSHTable
       auto start_time = std::chrono::high_resolution_clock::now();
       stats_.num_queries += 1;
 
-      get_unique_candidates_internal(p, num_probes, max_num_candidates, result);
+      get_unique_candidates_internal(p, num_probes, max_num_candidates, result, iterations);
 
       auto end_time = std::chrono::high_resolution_clock::now();
       auto elapsed_total =
@@ -222,10 +224,11 @@ class StaticLSHTable
     void get_unique_candidates_internal(const PointType& p,
                                         int_fast64_t num_probes,
                                         int_fast64_t max_num_candidates,
-                                        std::vector<KeyType>* result) {
+                                        std::vector<KeyType>* result,
+                                        int_fast8_t iterations = 0) {
       auto start_time = std::chrono::high_resolution_clock::now();
 
-      lsh_query_.get_probes_by_table(p, &tmp_probes_by_table_, num_probes);
+      lsh_query_.get_probes_by_table(p, &tmp_probes_by_table_, num_probes, iterations);
 
       auto lsh_end_time = std::chrono::high_resolution_clock::now();
       auto elapsed_lsh =

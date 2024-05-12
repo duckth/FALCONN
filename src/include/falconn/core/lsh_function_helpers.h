@@ -92,7 +92,8 @@ class HashObjectQuery {
 
   void get_probes_by_table(const VectorType& point,
                            std::vector<std::vector<HashType>>* probes,
-                           int_fast64_t num_probes) {
+                           int_fast64_t num_probes,
+                           int_fast8_t iterations) {
     if (num_probes < parent_.l_) {
       throw LSHFunctionError(
           "Number of probes must be at least "
@@ -106,11 +107,22 @@ class HashObjectQuery {
     }
 
     hash_transformation_.apply(point, &transformed_vector_);
-    multiprobe_.setup_probing(transformed_vector_, num_probes);
+    multiprobe_.setup_probing(transformed_vector_, num_probes * (iterations+1));
 
     int_fast32_t cur_table;
     HashType cur_probe;
+    bool stop = false;
 
+    for (int_fast8_t its = 0; its<iterations*num_probes; ++its) {
+      if (!multiprobe_.get_next_probe(&cur_probe, &cur_table)) {
+        stop = true;
+        break;
+      }
+    }
+
+    if (stop) {
+      return;
+    }
     for (int_fast64_t ii = 0; ii < num_probes; ++ii) {
       if (!multiprobe_.get_next_probe(&cur_probe, &cur_table)) {
         break;

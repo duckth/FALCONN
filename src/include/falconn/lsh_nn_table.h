@@ -62,7 +62,7 @@ class LSHNearestNeighborQuery {
   ///
   /// Finds the key of the closest candidate in the probing sequence for q.
   ///
-  virtual KeyType find_nearest_neighbor(const PointType& q, std::set<int> filters) = 0;
+  virtual KeyType find_nearest_neighbor(const PointType& q, std::set<int> filters, int_fast64_t max_iterations) = 0;
 
   ///
   /// Find the keys of the k closest candidates in the probing sequence for q.
@@ -96,7 +96,8 @@ class LSHNearestNeighborQuery {
   /// appear in the probing sequence.
   ///
   virtual void get_candidates_with_duplicates(const PointType& q,
-                                              std::vector<KeyType>* result) = 0;
+                                              std::vector<KeyType>* result,
+                                              int_fast8_t iterations) = 0;
 
   ///
   /// Resets the query statistics.
@@ -149,7 +150,7 @@ class LSHNearestNeighborQueryPool {
   ///
   /// Finds the key of the closest candidate in the probing sequence for q.
   ///
-  virtual KeyType find_nearest_neighbor(const PointType& q, std::set<int> filters) = 0;
+  virtual KeyType find_nearest_neighbor(const PointType& q, std::set<int> filters, int_fast64_t max_iterations) = 0;
 
   ///
   /// Find the keys of the k closest candidates in the probing sequence for q.
@@ -179,7 +180,8 @@ class LSHNearestNeighborQueryPool {
   /// See the documentation for LSHNearestNeighborQuery.
   ///
   virtual void get_candidates_with_duplicates(const PointType& q,
-                                              std::vector<KeyType>* result) = 0;
+                                              std::vector<KeyType>* result,
+                                              int_fast8_t iterations) = 0;
 
   ///
   /// Resets the query statistics.

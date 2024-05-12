@@ -177,7 +177,7 @@ if __name__ == '__main__':
     print('Constructing the LSH table')
     t1 = timeit.default_timer()
     table = falconn.LSHIndex(params_cp)
-    table.setup(dataset, mydic)
+    table.setup(dataset, mydic, {})
     t2 = timeit.default_timer()
     print('Done')
     print('Construction time: {}'.format(t2 - t1))
@@ -227,7 +227,7 @@ if __name__ == '__main__':
     res = 0
     right = 0
     for (i, query) in enumerate(queries):
-        res = query_object.find_nearest_neighbor(query, queries_metadata[i].indices)
+        res = query_object.find_nearest_neighbor(query, queries_metadata[i].indices, 20)
         real_point = None
         # for result in res:
             # breakpoint()

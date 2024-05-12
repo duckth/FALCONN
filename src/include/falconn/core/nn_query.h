@@ -42,9 +42,10 @@ class NearestNeighborQuery {
                                         const ComparisonPointType& q_comp,
                                         const std::set<int>& q_filter,
                                         int_fast64_t num_probes,
-                                        int_fast64_t max_num_candidates) {
+                                        int_fast64_t max_num_candidates,
+                                        int_fast64_t max_iterations) {
     auto start_time = std::chrono::high_resolution_clock::now();
-    printf("HELLO WHAT");
+    // printf("HELLO WHAT");
 
     auto distance_start_time = std::chrono::high_resolution_clock::now();
     LSHTableKeyType best_key = -1;
@@ -59,7 +60,7 @@ class NearestNeighborQuery {
       }
     }
 
-    printf("small label: %d\n", smallest_label);
+    // printf("small label: %d\n", smallest_label);
     if(smallest_label != -1)
     {
       std::vector<int> indices = small_labels_store_.get_indices_for_label(smallest_label);
@@ -90,11 +91,11 @@ class NearestNeighborQuery {
 
     }
     int iteration = 0;
-    while (best_key == -1 && iteration < 5) {
+    while (best_key == -1 && iteration < max_iterations) {
       // printf("Start iteration %d\n", iteration);
+      table_query_->get_unique_candidates(q, num_probes, max_num_candidates,
+                                          &candidates_, iteration);
       iteration += 1;
-      table_query_->get_unique_candidates(q, num_probes*iteration, max_num_candidates,
-                                          &candidates_);
       // TODO: use nullptr for pointer types
       // printf("Fundet candidates %ld\n", candidates_.size());
       if (candidates_.size() > 0) {
@@ -130,7 +131,7 @@ class NearestNeighborQuery {
           }
           if(is_good) {
             DistanceType cur_distance = dst_(q_comp, point);
-            printf("%d %f\n", iter.get_key(), cur_distance);
+            // printf("%d %f\n", iter.get_key(), cur_distance);
             if (cur_distance < best_distance || no_distance_found) {
 
               best_distance = cur_distance;
@@ -263,11 +264,12 @@ class NearestNeighborQuery {
   void get_candidates_with_duplicates(const LSHTablePointType& q,
                                       int_fast64_t num_probes,
                                       int_fast64_t max_num_candidates,
-                                      std::vector<LSHTableKeyType>* result) {
+                                      std::vector<LSHTableKeyType>* result,
+                                      int_fast8_t iterations) {
     auto start_time = std::chrono::high_resolution_clock::now();
 
     table_query_->get_candidates_with_duplicates(q, num_probes,
-                                                 max_num_candidates, result);
+                                                 max_num_candidates, result, iterations);
 
     auto end_time = std::chrono::high_resolution_clock::now();
     auto elapsed_total =
@@ -279,11 +281,12 @@ class NearestNeighborQuery {
   void get_unique_candidates(const LSHTablePointType& q,
                              int_fast64_t num_probes,
                              int_fast64_t max_num_candidates,
-                             std::vector<LSHTableKeyType>* result) {
+                             std::vector<LSHTableKeyType>* result,
+                             int_fast8_t iterations = 0) {
     auto start_time = std::chrono::high_resolution_clock::now();
 
     table_query_->get_unique_candidates(q, num_probes, max_num_candidates,
-                                        result);
+                                        result, iterations);
 
     auto end_time = std::chrono::high_resolution_clock::now();
     auto elapsed_total =

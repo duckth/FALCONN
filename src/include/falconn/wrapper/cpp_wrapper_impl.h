@@ -305,9 +305,9 @@ class LSHNNQueryWrapper : public LSHNearestNeighborQuery<PointType, KeyType> {
         new NNQueryType(internal_query_.get(), data_storage, metadata_storage, small_labels_store));
   }
 
-  KeyType find_nearest_neighbor(const PointType& q, std::set<int> filters) {
+  KeyType find_nearest_neighbor(const PointType& q, std::set<int> filters, int_fast64_t max_iterations) {
     return internal_nn_query_->find_nearest_neighbor(q, q, filters, num_probes_,
-                                                     max_num_candidates_);
+                                                     max_num_candidates_, max_iterations);
   }
 
   void find_k_nearest_neighbors(const PointType& q, int_fast64_t k,
@@ -323,9 +323,10 @@ class LSHNNQueryWrapper : public LSHNearestNeighborQuery<PointType, KeyType> {
   }
 
   void get_candidates_with_duplicates(const PointType& q,
-                                      std::vector<KeyType>* result) {
+                                      std::vector<KeyType>* result,
+                                      int_fast8_t iterations) {
     internal_nn_query_->get_candidates_with_duplicates(
-        q, num_probes_, max_num_candidates_, result);
+        q, num_probes_, max_num_candidates_, result, iterations);
   }
 
   void get_unique_candidates(const PointType& q, std::vector<KeyType>* result) {
@@ -403,10 +404,10 @@ class LSHNNQueryPool : public LSHNearestNeighborQueryPool<PointType, KeyType> {
     }
   }
 
-  KeyType find_nearest_neighbor(const PointType& q, std::set<int> filters) {
+  KeyType find_nearest_neighbor(const PointType& q, std::set<int> filters, int_fast64_t max_iterations) {
     int_fast32_t query_index = get_query_index_and_lock();
     KeyType res = internal_nn_queries_[query_index]->find_nearest_neighbor(
-        q, q, filters, num_probes_, max_num_candidates_);
+        q, q, filters, num_probes_, max_num_candidates_, max_iterations);
     unlock_query(query_index);
     return res;
   }
@@ -428,10 +429,11 @@ class LSHNNQueryPool : public LSHNearestNeighborQueryPool<PointType, KeyType> {
   }
 
   void get_candidates_with_duplicates(const PointType& q,
-                                      std::vector<KeyType>* result) {
+                                      std::vector<KeyType>* result,
+                                      int_fast8_t iterations) {
     int_fast32_t query_index = get_query_index_and_lock();
     internal_nn_queries_[query_index]->get_candidates_with_duplicates(
-        q, num_probes_, max_num_candidates_, result);
+        q, num_probes_, max_num_candidates_, result, iterations);
     unlock_query(query_index);
   }
 
